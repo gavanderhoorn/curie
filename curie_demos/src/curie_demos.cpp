@@ -344,8 +344,6 @@ bool CurieDemos::runProblems()
     if (!ros::ok())
       break;
 
-    waitForNextStep("run plan");
-
     std::cout << std::endl;
     std::cout << "------------------------------------------------------------------------" << std::endl;
     ROS_INFO_STREAM_NAMED("plan", "Planning " << run_id + 1 << " out of " << planning_runs_);
@@ -439,7 +437,11 @@ bool CurieDemos::plan()
   // Optionally create cartesian path
   if (use_task_planning_)
   {
-    generateRandCartesianPath();
+    if (!generateRandCartesianPath())
+    {
+      ROS_ERROR_STREAM_NAMED(name_, "Unable to create cart path");
+      exit(-1);
+    }
   }
 
   // Solve -----------------------------------------------------------
@@ -660,7 +662,7 @@ void CurieDemos::visualizeStartGoal()
 
 void CurieDemos::displayWaitingState(bool waiting)
 {
-  std::cout << " TODO display waiting state " << std::endl;
+  //std::cout << " TODO display waiting state " << std::endl;
   // if (waiting)
   //   publishViewFinderFrame(rvt::REGULAR);
   // else
@@ -721,18 +723,17 @@ void CurieDemos::visualizeRawTrajectory(og::PathGeometric &path)
   viz3_->trigger();
 }
 
-void CurieDemos::generateRandCartesianPath()
+bool CurieDemos::generateRandCartesianPath()
 {
-  // First cleanup previous cartesian paths
-  // experience_setup_->getSparseGraph()->cleanupTemporaryVerticies();
-
   // Get MoveIt path
   std::vector<moveit::core::RobotStatePtr> trajectory;
-  if (!cart_path_planner_->getTrajectory(trajectory))
+  if (!cart_path_planner_->computeFullDescartesTrajectory(trajectory))
   {
     ROS_ERROR_STREAM_NAMED(name_, "Unable to get computed cartesian trajectory");
-    exit(-1);
+    return false;;
   }
+
+  std::cout << "trajectory: " << trajectory.size() << std::endl;
 
   // Convert to OMPL path
   std::vector<ompl::base::State *> ompl_path;
@@ -752,8 +753,9 @@ void CurieDemos::generateRandCartesianPath()
   if (!bolt_->getTaskGraph()->addCartPath(ompl_path, indent))
   {
     ROS_ERROR_STREAM_NAMED(name_, "Unable to add cartesian path");
-    exit(-1);
+    return false;
   }
+  return true;
 }
 
 bool CurieDemos::checkMoveItPathSolution(robot_trajectory::RobotTrajectoryPtr traj)

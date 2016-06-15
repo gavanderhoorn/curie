@@ -6,9 +6,7 @@ Panels:
       Expanded:
         - /Grid1/Offset1
         - /Viz1to61
-        - /Viz1to61/RobotState3
         - /Viz1to61/RobotState3/Links1
-        - /Viz1to61/RobotState3/Links1/right_gripper_target1
         - /PlanningScene1/Scene Geometry1
         - /PlanningScene1/Scene Robot1
         - /InteractiveMarkers1
@@ -1261,7 +1259,8 @@ Visualization Manager:
           Marker Topic: /hilgendorf/ompl_visual5
           Name: ompl5 - markers
           Namespaces:
-            {}
+            Cylinder: true
+            path_spheres: true
           Queue Size: 100
           Value: true
         - Attached Body Color: 150; 50; 150
@@ -1406,7 +1405,7 @@ Visualization Manager:
               Value: true
             right_gripper_target:
               Alpha: 1
-              Show Axes: true
+              Show Axes: false
               Show Trail: false
             right_robotiq_85_adapter_link:
               Alpha: 1
@@ -1504,7 +1503,8 @@ Visualization Manager:
           Marker Topic: /hilgendorf/ompl_visual6
           Name: ompl6 - markers
           Namespaces:
-            {}
+            Cylinder: true
+            path_spheres: true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -2726,6 +2726,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/cartesian_trajectory
           Name: Cart
           Namespaces:
+            Arrow: true
             axes: true
             line: true
           Queue Size: 100
@@ -2733,45 +2734,19 @@ Visualization Manager:
       Enabled: true
       Name: InteractiveMarkers
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        world:
-          Value: true
-        world_visual1:
-          Value: true
-        world_visual2:
-          Value: true
-        world_visual3:
-          Value: true
-        world_visual4:
-          Value: true
-        world_visual5:
-          Value: true
-        world_visual6:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        world:
-          world_visual1:
-            {}
-          world_visual2:
-            {}
-          world_visual3:
-            {}
-          world_visual4:
-            {}
-          world_visual5:
-            {}
-          world_visual6:
-            {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 45; 53; 53
@@ -2786,22 +2761,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.54455
+      Distance: 5.75472
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.473291
-        Y: -0.254841
-        Z: -2.66771e-06
+        X: 0.330523
+        Y: -0.237648
+        Z: -2.42929e-06
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.744797
+      Pitch: 0.314797
       Target Frame: robot_table_link
       Value: XYOrbit (rviz)
-      Yaw: 0.165081
+      Yaw: 5.97825
     Saved: ~
 Window Geometry:
   Displays:

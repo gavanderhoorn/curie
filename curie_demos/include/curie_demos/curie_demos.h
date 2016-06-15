@@ -93,7 +93,7 @@ public:
   bool plan();
 
   /** \brief Create multiple dummy cartesian paths */
-  void generateRandCartesianPath();
+  bool generateRandCartesianPath();
 
   bool checkOMPLPathSolution(og::PathGeometric& path);
   bool checkMoveItPathSolution(robot_trajectory::RobotTrajectoryPtr traj);

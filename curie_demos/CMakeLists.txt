@@ -65,12 +65,6 @@ add_library(${PROJECT_NAME}_moveit_base
 target_link_libraries(${PROJECT_NAME}_moveit_base ${catkin_LIBRARIES})
 
 # Library
-add_library(${PROJECT_NAME}_ur5_descartes
-  src/ur5_descartes.cpp
-)
-target_link_libraries(${PROJECT_NAME}_ur5_descartes ${catkin_LIBRARIES})
-
-# Library
 add_library(${PROJECT_NAME}_imarker_robot_state
   src/imarker_robot_state.cpp
 )
@@ -87,7 +81,6 @@ add_library(${PROJECT_NAME}_cart_path_planner
 # Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_cart_path_planner
   ${PROJECT_NAME}_imarker_robot_state
-  ${PROJECT_NAME}_ur5_descartes
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
 )
