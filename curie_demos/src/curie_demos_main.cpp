@@ -66,7 +66,6 @@ int main(int argc, char **argv)
   //   setenv("HOME", "/home/dave", 1);
   // }
 
-
   // Initialize main class
   curie_demos::CurieDemos demo(hostname);
 

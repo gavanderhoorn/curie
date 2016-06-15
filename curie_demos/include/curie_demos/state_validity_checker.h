@@ -52,11 +52,10 @@ class ModelBasedPlanningContext;
 class StateValidityChecker : public ompl::base::StateValidityChecker
 {
 public:
-  StateValidityChecker(const std::string& group_name,
-                       ompl::base::SpaceInformationPtr& si,
-                       const moveit::core::RobotState& start_state,
-                       const planning_scene::PlanningSceneConstPtr& planning_scene,
-                       moveit_ompl::ModelBasedStateSpacePtr& mb_state_space);
+  StateValidityChecker(const std::string &group_name, ompl::base::SpaceInformationPtr &si,
+                       const moveit::core::RobotState &start_state,
+                       const planning_scene::PlanningSceneConstPtr &planning_scene,
+                       moveit_ompl::ModelBasedStateSpacePtr &mb_state_space);
 
   virtual bool isValid(const ompl::base::State *state) const
   {
@@ -77,7 +76,6 @@ public:
   void setVerbose(bool flag);
 
 protected:
-
   std::string group_name_;
   TSStateStorage tss_;
   planning_scene::PlanningSceneConstPtr planning_scene_;

@@ -51,7 +51,8 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
   imarker_state_.reset(new moveit::core::RobotState(*parent_->moveit_start_));
 
   // Create cartesian start pose interactive marker
-  imarker_cartesian_.reset(new IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", parent_->jmg_, parent_->ee_link_, rvt::BLUE));
+  imarker_cartesian_.reset(
+      new IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", parent_->jmg_, parent_->ee_link_, rvt::BLUE));
   imarker_cartesian_->setIMarkerCallback(
       std::bind(&CartPathPlanner::processIMarkerPose, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -79,7 +80,7 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
 
   // planning robot path
   curie_demos::DescartesTrajectory output_path;
-  ur5_descartes_->planPath(traj,output_path);
+  ur5_descartes_->planPath(traj, output_path);
 
   // running robot path
   moveit_msgs::RobotTrajectory moveit_traj = ur5_descartes_->runPath(output_path);
@@ -88,7 +89,6 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
 
   const bool blocking = true;
   imarker_cartesian_->getVisualTools()->publishTrajectoryPath(moveit_traj, imarker_state_, blocking);
-
 
   ROS_INFO_STREAM_NAMED(name_, "CartPathPlanner Ready.");
 }

@@ -558,8 +558,8 @@ void CurieDemos::loadVisualTools()
   const std::size_t NUM_VISUALS = 6;
   for (std::size_t i = 1; i <= NUM_VISUALS; ++i)
   {
-    MoveItVisualToolsPtr moveit_visual = MoveItVisualToolsPtr(
-        new MoveItVisualTools("/world_visual" + std::to_string(i), namesp + "/ompl_visual" + std::to_string(i), robot_model_));
+    MoveItVisualToolsPtr moveit_visual = MoveItVisualToolsPtr(new MoveItVisualTools(
+        "/world_visual" + std::to_string(i), namesp + "/ompl_visual" + std::to_string(i), robot_model_));
     moveit_visual->loadMarkerPub(false);
     moveit_visual->setPlanningSceneMonitor(planning_scene_monitor_);
     moveit_visual->setManualSceneUpdating(true);
@@ -629,7 +629,6 @@ void CurieDemos::loadVisualTools()
   }
 
   deleteAllMarkers();
-
 
   // Set Rviz visuals in OMPL planner
   ompl::tools::VisualizerPtr visual = experience_setup_->getVisual();

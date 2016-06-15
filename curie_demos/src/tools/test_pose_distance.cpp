@@ -104,7 +104,7 @@ public:
       // Convert to eigen
       tf::transformTFToEigen(tf_transform, transform);
 
-      //std::cout << "transform: \n"
+      // std::cout << "transform: \n"
       //<< transform.rotation() << std::endl;
 
       double distance = getPoseDistance(transform, Eigen::Affine3d::Identity());
@@ -165,7 +165,7 @@ typedef boost::shared_ptr<const TestPoseDistance> TestPoseDistanceConstPtr;
 }  // namespace curie_demos
 #endif  // CURIE_DEMOS_TEST_POSE_DISTANCE_H
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   // Initialize ROS
   ros::init(argc, argv, "test_pose_distance");

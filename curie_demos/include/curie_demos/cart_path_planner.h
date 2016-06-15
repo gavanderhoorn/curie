@@ -52,20 +52,18 @@
 
 namespace curie_demos
 {
-
 class CurieDemos;
 
 class CartPathPlanner
 {
 public:
-
   /**
    * \brief Constructor
    */
   CartPathPlanner(CurieDemos* parent);
 
-void processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback,
-                                           const Eigen::Affine3d &feedback_pose);
+  void processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback,
+                          const Eigen::Affine3d& feedback_pose);
 
   bool computePath();
 
@@ -77,7 +75,6 @@ void processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConst
   bool getTrajectory(std::vector<moveit::core::RobotStatePtr>& trajectory);
 
 private:
-
   // --------------------------------------------------------
 
   // The short name of this class
@@ -100,11 +97,11 @@ private:
 
   // Descartes
   UR5DescartesAppPtr ur5_descartes_;
-}; // end class
+};  // end class
 
 // Create boost pointers for this class
 typedef boost::shared_ptr<CartPathPlanner> CartPathPlannerPtr;
 typedef boost::shared_ptr<const CartPathPlanner> CartPathPlannerConstPtr;
 
-} // namespace curie_demos
+}  // namespace curie_demos
 #endif  // CURIE_DEMOS_CART_PATH_PLANNER_H

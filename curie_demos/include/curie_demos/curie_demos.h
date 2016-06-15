@@ -70,7 +70,6 @@ namespace curie_demos
 class CurieDemos : public curie_demos::MoveItBase
 {
 public:
-
   /** \brief Constructor */
   CurieDemos(const std::string& hostname);
 
@@ -99,7 +98,7 @@ public:
   bool checkOMPLPathSolution(og::PathGeometric& path);
   bool checkMoveItPathSolution(robot_trajectory::RobotTrajectoryPtr traj);
 
-  bool getRandomState(moveit::core::RobotStatePtr &robot_state);
+  bool getRandomState(moveit::core::RobotStatePtr& robot_state);
 
   /**
    * \brief Clear all markers displayed in Rviz
@@ -114,7 +113,7 @@ public:
 
   void displayWaitingState(bool waiting);
 
-  void waitForNextStep(const std::string &msg);
+  void waitForNextStep(const std::string& msg);
 
   // --------------------------------------------------------
 
@@ -154,8 +153,8 @@ public:
 
   // Planning groups
   std::string planning_group_name_;
-  moveit::core::JointModelGroup *jmg_;
-  moveit::core::LinkModel *ee_link_;
+  moveit::core::JointModelGroup* jmg_;
+  moveit::core::LinkModel* ee_link_;
 
   // Modes
   bool run_problems_;

@@ -115,7 +115,8 @@ bool MoveItBase::loadPlanningSceneMonitor(const std::string& joint_state_topic)
   {
     // Optional monitors to start:
     // planning_scene_monitor_->startStateMonitor(joint_state_topic, "");
-    planning_scene_monitor_->startPublishingPlanningScene(psm::PlanningSceneMonitor::UPDATE_SCENE, planning_scene_topic_);
+    planning_scene_monitor_->startPublishingPlanningScene(psm::PlanningSceneMonitor::UPDATE_SCENE,
+                                                          planning_scene_topic_);
     // planning_scene_monitor_->getPlanningScene()->setName("planning_scene");
     planning_scene_monitor_->startSceneMonitor(planning_scene_topic_);
     // psm::PlanningSceneMonitor::UPDATE_SCENE, "planning_scene");
@@ -125,8 +126,8 @@ bool MoveItBase::loadPlanningSceneMonitor(const std::string& joint_state_topic)
     ROS_ERROR_STREAM_NAMED(name_, "Planning scene not configured");
     return false;
   }
-  //ros::spinOnce();
-  //ros::Duration(0.5).sleep();  // when at 0.1, i believe sometimes vjoint not properly loaded
+  // ros::spinOnce();
+  // ros::Duration(0.5).sleep();  // when at 0.1, i believe sometimes vjoint not properly loaded
 
   // Wait for complete state to be recieved
   bool wait_for_complete_state = false;
@@ -218,7 +219,7 @@ moveit::core::RobotStatePtr MoveItBase::getCurrentState()
   return current_state_;
 }
 
-bool MoveItBase::getTFTransform(const std::string& from_frame, const std::string& to_frame, Eigen::Affine3d &pose)
+bool MoveItBase::getTFTransform(const std::string& from_frame, const std::string& to_frame, Eigen::Affine3d& pose)
 {
   tf::StampedTransform tf_transform;
 

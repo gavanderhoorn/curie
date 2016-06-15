@@ -39,11 +39,11 @@
 #include <ros/ros.h>
 #include <moveit_ompl/detail/threadsafe_state_storage.h>
 
-moveit_ompl::StateValidityChecker::StateValidityChecker(const std::string& group_name,
-                                                        ompl::base::SpaceInformationPtr& si,
-                                                        const moveit::core::RobotState& start_state,
-                                                        const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                        moveit_ompl::ModelBasedStateSpacePtr& mb_state_space)
+moveit_ompl::StateValidityChecker::StateValidityChecker(const std::string &group_name,
+                                                        ompl::base::SpaceInformationPtr &si,
+                                                        const moveit::core::RobotState &start_state,
+                                                        const planning_scene::PlanningSceneConstPtr &planning_scene,
+                                                        moveit_ompl::ModelBasedStateSpacePtr &mb_state_space)
   : ompl::base::StateValidityChecker(si)
   , group_name_(group_name)
   , tss_(start_state)
@@ -99,8 +99,8 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
 
   // check collision avoidance
   collision_detection::CollisionResult res;
-  planning_scene_->checkCollision(
-      verbose ? collision_request_simple_verbose_ : collision_request_simple_, res, *robot_state);
+  planning_scene_->checkCollision(verbose ? collision_request_simple_verbose_ : collision_request_simple_, res,
+                                  *robot_state);
   return res.collision == false;
 }
 
@@ -137,8 +137,8 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
 
   // check collision avoidance
   collision_detection::CollisionResult res;
-  planning_scene_->checkCollision(
-      verbose ? collision_request_with_distance_verbose_ : collision_request_with_distance_, res, *robot_state);
+  planning_scene_->checkCollision(verbose ? collision_request_with_distance_verbose_ : collision_request_with_distance_,
+                                  res, *robot_state);
   dist = res.distance;
   return res.collision == false;
 }

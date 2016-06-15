@@ -19,12 +19,12 @@ public:
   double *values;
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   double vm, rss;
 
-  double array_size_b = ARRAY_SIZE*sizeof(double); // bytes
-  double state_size_b = sizeof(StateType); // bytes
+  double array_size_b = ARRAY_SIZE * sizeof(double);  // bytes
+  double state_size_b = sizeof(StateType);            // bytes
 
   std::cout << "Size of state: " << state_size_b << " bytes" << std::endl;
   std::cout << "Size of double: " << sizeof(double) << " bytes" << std::endl;
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
   // On first loop, add base memory
   double my_count_mb = vm;
 
-  std::vector<StateType*> states;
+  std::vector<StateType *> states;
 
   // Load memory
   while (vm < 1000.0)
@@ -56,13 +56,13 @@ int main(int argc, char** argv)
     }
 
     // My count
-    my_count_mb += (array_size_b + state_size_b) / 1048576.0; // convert byte to megabyte
+    my_count_mb += (array_size_b + state_size_b) / 1048576.0;  // convert byte to megabyte
 
     // Get computer's measure of memory usage
     processMemUsage(vm, rss);
 
     // Output
-    //std::cout << "VM: " << vm << " MB    |    my_count: " << my_count_mb << " MB" << std::endl;
+    // std::cout << "VM: " << vm << " MB    |    my_count: " << my_count_mb << " MB" << std::endl;
     std::cout << "VM: " << vm << " MB \t RSS: " << rss << " MB" << std::endl;
   }
 
@@ -73,20 +73,20 @@ int main(int argc, char** argv)
     delete[] states[i]->values;
 
     // My count
-    my_count_mb -= (array_size_b) / 1048576.0; // convert byte to megabyte
+    my_count_mb -= (array_size_b) / 1048576.0;  // convert byte to megabyte
 
     // Get computer's measure of memory usage
     processMemUsage(vm, rss);
 
     // Output
-    //std::cout << "VM: " << vm << " MB    |    my_count: " << my_count_mb << " MB" << std::endl;
+    // std::cout << "VM: " << vm << " MB    |    my_count: " << my_count_mb << " MB" << std::endl;
     std::cout << "VM: " << vm << " MB \t RSS: " << rss << " MB" << std::endl;
   }
 
   std::cout << "-------------------------------------------------------" << std::endl;
   std::cout << "-------------------------------------------------------" << std::endl;
   std::cout << "-------------------------------------------------------" << std::endl;
-  //usleep(10000000);
+  // usleep(10000000);
 
   /*
   // Unload state
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
   {
     processMemUsage(vm, rss);
     std::cout << "VM: " << vm << " MB \t RSS: " << rss << " MB" << std::endl;
-    //std::cout << "Memory usage: " << getValue() << " KB" << std::endl;
+    // std::cout << "Memory usage: " << getValue() << " KB" << std::endl;
 
     usleep(1000000);
   }

@@ -80,7 +80,7 @@ IMarkerRobotState::IMarkerRobotState(psm::PlanningSceneMonitorPtr planning_scene
   // Load robot state
   imarker_state_.reset(new moveit::core::RobotState(planning_scene_monitor_->getRobotModel()));
   imarker_state_->setToDefaultValues();
-  //imarker_state_->printStatePositions();
+  // imarker_state_->printStatePositions();
 
   // Get file name
   if (!getFilePath(file_path_, "imarker_" + name_ + ".csv", "config/imarkers"))
@@ -90,7 +90,7 @@ IMarkerRobotState::IMarkerRobotState(psm::PlanningSceneMonitorPtr planning_scene
   if (!loadFromFile(file_path_))
   {
     ROS_INFO_STREAM_NAMED(name_, "Unable to find state from file, setting to default");
-    //imarker_state_->printStatePositions();
+    // imarker_state_->printStatePositions();
 
     // Get pose from robot state
     setPoseFromRobotState();
@@ -139,7 +139,7 @@ bool IMarkerRobotState::loadFromFile(const std::string &file_name)
 
   // Get robot state from file
   moveit::core::streamToRobotState(*imarker_state_, line);
-  //imarker_state_->printStatePositions();
+  // imarker_state_->printStatePositions();
 
   // Get pose from robot state
   setPoseFromRobotState();
@@ -169,7 +169,7 @@ void IMarkerRobotState::iMarkerCallback(const visualization_msgs::InteractiveMar
 
   // Only allow one feedback to be processed at a time
   {
-    //boost::unique_lock<boost::mutex> scoped_lock(imarker_mutex_);
+    // boost::unique_lock<boost::mutex> scoped_lock(imarker_mutex_);
     if (imarker_ready_to_process_ == false)
     {
       return;
@@ -193,7 +193,7 @@ void IMarkerRobotState::iMarkerCallback(const visualization_msgs::InteractiveMar
 
   // Allow next feedback to be processed
   {
-    //boost::unique_lock<boost::mutex> scoped_lock(imarker_mutex_);
+    // boost::unique_lock<boost::mutex> scoped_lock(imarker_mutex_);
     imarker_ready_to_process_ = true;
   }
 }
@@ -219,10 +219,10 @@ void IMarkerRobotState::solveIK(Eigen::Affine3d &pose)
   }
 
   // Attempt to set robot to new pose
-  //ROS_DEBUG_STREAM_THROTTLE_NAMED(1, name_, "Setting from IK");
+  // ROS_DEBUG_STREAM_THROTTLE_NAMED(1, name_, "Setting from IK");
   if (imarker_state_->setFromIK(jmg_, pose, attempts, timeout, constraint_fn))
   {
-    //ROS_INFO_STREAM_NAMED(name_, "Solved IK");
+    // ROS_INFO_STREAM_NAMED(name_, "Solved IK");
     visual_tools_->publishRobotState(imarker_state_, color_);
 
     // Save pose to file if its been long enough
@@ -391,7 +391,7 @@ bool IMarkerRobotState::getFilePath(std::string &file_path, const std::string &f
   // directories successfully created, append the group name as the file name
   rootPath = rootPath / fs::path(file_name);
   file_path = rootPath.string();
-  //ROS_DEBUG_STREAM_NAMED(name_, "Config file: " << file_path);
+  // ROS_DEBUG_STREAM_NAMED(name_, "Config file: " << file_path);
 
   return true;
 }
@@ -414,9 +414,9 @@ bool IMarkerRobotState::setToRandomState()
     // which planning group to collision check, "" is everything
     static const std::string planning_group = jmg_->getName();
     if (static_cast<const planning_scene::PlanningSceneConstPtr &>(*ls)
-        ->isStateValid(*imarker_state_, planning_group, check_verbose))
+            ->isStateValid(*imarker_state_, planning_group, check_verbose))
     {
-      //ROS_DEBUG_STREAM_NAMED(name_, "Found valid random robot state after " << i << " attempts");
+      // ROS_DEBUG_STREAM_NAMED(name_, "Found valid random robot state after " << i << " attempts");
 
       // Get pose from robot state
       setPoseFromRobotState();
@@ -441,7 +441,7 @@ bool IMarkerRobotState::setToRandomState()
 
 moveit_visual_tools::MoveItVisualToolsPtr IMarkerRobotState::getVisualTools()
 {
-  //ROS_WARN_STREAM_NAMED(name_, "someone is getting visual tools from imarker");
+  // ROS_WARN_STREAM_NAMED(name_, "someone is getting visual tools from imarker");
   return visual_tools_;
 }
 

@@ -19,11 +19,10 @@
 
 namespace curie_demos
 {
-
 const std::string ROBOT_DESCRIPTION_PARAM = "robot_description";
 const std::string EXECUTE_TRAJECTORY_SERVICE = "execute_kinematic_path";
 const std::string VISUALIZE_TRAJECTORY_TOPIC = "visualize_trajectory_curve";
-const double SERVICE_TIMEOUT = 5.0f; // seconds
+const double SERVICE_TIMEOUT = 5.0f;  // seconds
 const double ORIENTATION_INCREMENT = 0.5f;
 const double EPSILON = 0.0001f;
 const double AXIS_LINE_LENGHT = 0.01;
@@ -41,31 +40,29 @@ typedef std::vector<descartes_core::TrajectoryPtPtr> DescartesTrajectory;
  */
 struct DemoConfiguration
 {
-  std::string group_name;                 /* Name of the manipulation group containing the relevant links in the robot */
-  std::string tip_link;                   /* Usually the last link in the kinematic chain of the robot */
-  std::string base_link;                  /* The name of the base link of the robot */
-  std::string world_frame;                /* The name of the world link in the URDF file */
-  std::vector<std::string> joint_names;   /* A list with the names of the mobile joints in the robot */
-
+  std::string group_name;               /* Name of the manipulation group containing the relevant links in the robot */
+  std::string tip_link;                 /* Usually the last link in the kinematic chain of the robot */
+  std::string base_link;                /* The name of the base link of the robot */
+  std::string world_frame;              /* The name of the world link in the URDF file */
+  std::vector<std::string> joint_names; /* A list with the names of the mobile joints in the robot */
 
   /* Trajectory Generation Members:
    *  Used to control the attributes (points, shape, size, etc) of the robot trajectory.
    *  */
-  double time_delay;              /* Time step between consecutive points in the robot path */
-  double foci_distance;           /* Controls the size of the curve */
-  double radius;                  /* Controls the radius of the sphere on which the curve is projected */
-  int num_points;                 /* Number of points per curve */
-  int num_lemniscates;            /* Number of curves*/
-  std::vector<double> center;     /* Location of the center of all the lemniscate curves */
-  std::vector<double> seed_pose;  /* Joint values close to the desired start of the robot path */
+  double time_delay;             /* Time step between consecutive points in the robot path */
+  double foci_distance;          /* Controls the size of the curve */
+  double radius;                 /* Controls the radius of the sphere on which the curve is projected */
+  int num_points;                /* Number of points per curve */
+  int num_lemniscates;           /* Number of curves*/
+  std::vector<double> center;    /* Location of the center of all the lemniscate curves */
+  std::vector<double> seed_pose; /* Joint values close to the desired start of the robot path */
 
   /*
    * Visualization Members
    * Used to control the attributes of the visualization artifacts
    */
-  double min_point_distance;      /* Minimum distance between consecutive trajectory points. */
+  double min_point_distance; /* Minimum distance between consecutive trajectory points. */
 };
-
 
 /*  =============================== Application Class ===============================
  *
@@ -90,27 +87,24 @@ public:
   void loadParameters();
   void initDescartes();
   void generateTrajectory(DescartesTrajectory& traj);
-  void planPath(DescartesTrajectory& input_traj,DescartesTrajectory& output_path);
+  void planPath(DescartesTrajectory& input_traj, DescartesTrajectory& output_path);
   moveit_msgs::RobotTrajectory runPath(const DescartesTrajectory& path);
 
   /* Support methods
    *  Called from within the main application functions in order to perform convenient tasks.
    */
 
-  static bool createLemniscateCurve(double foci_distance, double sphere_radius,
-                                    int num_points, int num_lemniscates,
-                                    const Eigen::Vector3d& sphere_center,
-                                    EigenSTL::vector_Affine3d& poses);
+  static bool createLemniscateCurve(double foci_distance, double sphere_radius, int num_points, int num_lemniscates,
+                                    const Eigen::Vector3d& sphere_center, EigenSTL::vector_Affine3d& poses);
 
-  void fromDescartesToMoveitTrajectory(const DescartesTrajectory& in_traj,
-                                              trajectory_msgs::JointTrajectory& out_traj);
+  void fromDescartesToMoveitTrajectory(const DescartesTrajectory& in_traj, trajectory_msgs::JointTrajectory& out_traj);
 
   void publishPosesMarkers(const EigenSTL::vector_Affine3d& poses);
 
   //-------------------------------------
 
-  ros::NodeHandle nh_; //Object used for creating and managing ros application resources
-  std::string name_ = "ur5_descartes_app"; // short application name
+  ros::NodeHandle nh_;  // Object used for creating and managing ros application resources
+  std::string name_ = "ur5_descartes_app";  // short application name
 
   // Holds the data used by the various functions in the application.
   DemoConfiguration config_;
@@ -124,14 +118,12 @@ public:
   descartes_core::RobotModelPtr ur5_robot_model_; /* Performs tasks specific to the Robot
                                                      such IK, FK and collision detection*/
   descartes_planner::SparsePlanner planner_;      /* Plans a smooth robot path given a trajectory of points */
-  //descartes_planner::DensePlanner planner_;
-
+  // descartes_planner::DensePlanner planner_;
 };
 
 // Create boost pointers for this class
 typedef boost::shared_ptr<UR5DescartesApp> UR5DescartesAppPtr;
 typedef boost::shared_ptr<const UR5DescartesApp> UR5DescartesAppConstPtr;
-
 
 } /* namespace curie_demos */
 

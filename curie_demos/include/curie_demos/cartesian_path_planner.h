@@ -54,30 +54,25 @@
 
 namespace PACKAGE_NAME
 {
-
 class CLASS_NAME
 {
 public:
-
   /**
    * \brief Constructor
    */
-  CLASS_NAME()
-    : name_("SHORT_NAME")
-    , nh_("~")
+  CLASS_NAME() : name_("SHORT_NAME"), nh_("~")
   {
     // Load rosparams
-    //ros::NodeHandle rpnh(nh_, name_);
-    //std::size_t error = 0;
-    //error += !rosparam_shortcuts::get(name_, rpnh, "control_rate", control_rate_);
+    // ros::NodeHandle rpnh(nh_, name_);
+    // std::size_t error = 0;
+    // error += !rosparam_shortcuts::get(name_, rpnh, "control_rate", control_rate_);
     // add more parameters here to load if desired
-    //rosparam_shortcuts::shutdownIfError(name_, error);
+    // rosparam_shortcuts::shutdownIfError(name_, error);
 
-    ROS_INFO_STREAM_NAMED(name_,"CLASS_NAME Ready.");
+    ROS_INFO_STREAM_NAMED(name_, "CLASS_NAME Ready.");
   }
 
 private:
-
   // --------------------------------------------------------
 
   // The short name of this class
@@ -86,11 +81,11 @@ private:
   // A shared node handle
   ros::NodeHandle nh_;
 
-}; // end class
+};  // end class
 
 // Create boost pointers for this class
 typedef boost::shared_ptr<CLASS_NAME> CLASS_NAMEPtr;
 typedef boost::shared_ptr<const CLASS_NAME> CLASS_NAMEConstPtr;
 
-} // namespace PACKAGE_NAME
+}  // namespace PACKAGE_NAME
 #endif  // PACKAGE_NAME_SHORT_NAME_H
