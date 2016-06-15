@@ -36,20 +36,20 @@
    Desc:   Interface for planning a descartes path for UR5
 */
 
-#include <curie_demos/ur5_descartes_app.h>
+#include <curie_demos/ur5_descartes.h>
 
 // ROS parameter loading
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
 
 namespace curie_demos
 {
-UR5DescartesApp::UR5DescartesApp(moveit_visual_tools::MoveItVisualToolsPtr visual_tools,
+UR5Descartes::UR5Descartes(moveit_visual_tools::MoveItVisualToolsPtr visual_tools,
                                  moveit::core::JointModelGroup* jmg)
   : nh_("~"), visual_tools_(visual_tools), jmg_(jmg)
 {
 }
 
-void UR5DescartesApp::initDescartes()
+void UR5Descartes::initDescartes()
 {
   ROS_INFO_STREAM_NAMED(name_, "initDescartes()");
 
@@ -101,7 +101,7 @@ void UR5DescartesApp::initDescartes()
   }
 }
 
-void UR5DescartesApp::loadParameters()
+void UR5Descartes::loadParameters()
 {
   ROS_INFO_STREAM_NAMED(name_, "loadParameters()");
 
@@ -124,7 +124,7 @@ void UR5DescartesApp::loadParameters()
   rosparam_shortcuts::shutdownIfError(name_, error);
 }
 
-void UR5DescartesApp::planPath(DescartesTrajectory& input_traj, DescartesTrajectory& output_path)
+void UR5Descartes::planPath(DescartesTrajectory& input_traj, DescartesTrajectory& output_path)
 {
   ROS_INFO_STREAM_NAMED(name_, "planPath()");
 
@@ -154,7 +154,7 @@ void UR5DescartesApp::planPath(DescartesTrajectory& input_traj, DescartesTraject
   }
 }
 
-moveit_msgs::RobotTrajectory UR5DescartesApp::runPath(const DescartesTrajectory& path)
+moveit_msgs::RobotTrajectory UR5Descartes::runPath(const DescartesTrajectory& path)
 {
   ROS_INFO_STREAM_NAMED(name_, "runPath()");
 
@@ -172,7 +172,7 @@ moveit_msgs::RobotTrajectory UR5DescartesApp::runPath(const DescartesTrajectory&
   return moveit_traj;
 }
 
-void UR5DescartesApp::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses)
+void UR5Descartes::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses)
 {
   ROS_INFO_STREAM_NAMED(name_, "publishPosesMarkers() world_frame: " << visual_tools_->getBaseFrame());
 
@@ -269,7 +269,7 @@ void UR5DescartesApp::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses
   visual_tools_->triggerBatchPublish();
 }
 
-bool UR5DescartesApp::createLemniscateCurve(double foci_distance, double sphere_radius, int num_points,
+bool UR5Descartes::createLemniscateCurve(double foci_distance, double sphere_radius, int num_points,
                                             int num_lemniscates, const Eigen::Vector3d& sphere_center,
                                             EigenSTL::vector_Affine3d& poses)
 {
@@ -355,7 +355,7 @@ bool UR5DescartesApp::createLemniscateCurve(double foci_distance, double sphere_
   return true;
 }
 
-void UR5DescartesApp::fromDescartesToMoveitTrajectory(const DescartesTrajectory& in_traj,
+void UR5Descartes::fromDescartesToMoveitTrajectory(const DescartesTrajectory& in_traj,
                                                       trajectory_msgs::JointTrajectory& out_traj)
 {
   ROS_INFO_STREAM_NAMED(name_, "fromDescartesToMoveitTrajectory()");
@@ -395,7 +395,7 @@ void UR5DescartesApp::fromDescartesToMoveitTrajectory(const DescartesTrajectory&
   }
 }
 
-void UR5DescartesApp::generateTrajectory(DescartesTrajectory& traj)
+void UR5Descartes::generateTrajectory(DescartesTrajectory& traj)
 {
   ROS_INFO_STREAM_NAMED(name_, "generateTrajectory()");
 

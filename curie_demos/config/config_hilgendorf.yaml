@@ -134,7 +134,7 @@ bolt:
 arm_prefix: right_
 
 # ====================================================
-ur5_descartes_app:
+ur5_descartes:
   group_name: right_arm
   tip_link: right_gripper_target
   base_link: base_link

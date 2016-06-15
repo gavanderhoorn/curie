@@ -66,13 +66,13 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
   // Load Descartes ------------------------------------------------
 
   // creating application
-  ur5_descartes_app_.reset(new curie_demos::UR5DescartesApp(imarker_cartesian_->getVisualTools(), parent_->jmg_));
+  ur5_descartes_.reset(new curie_demos::UR5Descartes(imarker_cartesian_->getVisualTools(), parent_->jmg_));
 
   // loading parameters
-  ur5_descartes_app_->loadParameters();
+  ur5_descartes_->loadParameters();
 
   // initializing descartes
-  ur5_descartes_app_->initDescartes();
+  ur5_descartes_->initDescartes();
 
   ROS_INFO_STREAM_NAMED(name_, "CartPathPlanner Ready.");
 }
@@ -93,14 +93,14 @@ bool CartPathPlanner::computeDescartesCartPath(const Eigen::Affine3d &start_pose
 
   // generating trajectory
   curie_demos::DescartesTrajectory traj;
-  ur5_descartes_app_->generateTrajectory(traj);
+  ur5_descartes_->generateTrajectory(traj);
 
   // planning robot path
   curie_demos::DescartesTrajectory output_path;
-  ur5_descartes_app_->planPath(traj, output_path);
+  ur5_descartes_->planPath(traj, output_path);
 
   // running robot path
-  moveit_msgs::RobotTrajectory moveit_traj = ur5_descartes_app_->runPath(output_path);
+  moveit_msgs::RobotTrajectory moveit_traj = ur5_descartes_->runPath(output_path);
 
   std::cout << "moveit_traj: " << moveit_traj << std::endl;
 

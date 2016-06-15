@@ -5,8 +5,8 @@
  *      Author: ros-devel
  */
 
-#ifndef CURIE_DEMOS_UR5_DESCARTES_APPLICATION_H_
-#define CURIE_DEMOS_UR5_DESCARTES_APPLICATION_H_
+#ifndef CURIE_DEMOS_UR5_DESCARTES_H_
+#define CURIE_DEMOS_UR5_DESCARTES_H_
 
 #include <ros/ros.h>
 #include <descartes_trajectory/axial_symmetric_pt.h>
@@ -68,11 +68,11 @@ struct DemoConfiguration
  * Provides a group of functions for planning and executing a robot path using Moveit and
  * the Descartes Planning Library
  */
-class UR5DescartesApp
+class UR5Descartes
 {
 public:
 
-  UR5DescartesApp(moveit_visual_tools::MoveItVisualToolsPtr visual_tools, moveit::core::JointModelGroup* jmg);
+  UR5Descartes(moveit_visual_tools::MoveItVisualToolsPtr visual_tools, moveit::core::JointModelGroup* jmg);
 
   void loadParameters();
   void initDescartes();
@@ -90,7 +90,7 @@ public:
   //-------------------------------------
 
   ros::NodeHandle nh_;  // Object used for creating and managing ros application resources
-  std::string name_ = "ur5_descartes_app";  // short application name
+  std::string name_ = "ur5_descartes";  // short application name
 
   // Holds the data used by the various functions in the application.
   DemoConfiguration config_;
@@ -111,9 +111,9 @@ public:
 };
 
 // Create boost pointers for this class
-typedef boost::shared_ptr<UR5DescartesApp> UR5DescartesAppPtr;
-typedef boost::shared_ptr<const UR5DescartesApp> UR5DescartesAppConstPtr;
+typedef boost::shared_ptr<UR5Descartes> UR5DescartesPtr;
+typedef boost::shared_ptr<const UR5Descartes> UR5DescartesConstPtr;
 
 } /* namespace curie_demos */
 
-#endif /* CURIE_DEMOS_UR5_DESCARTES_APPLICATION_H_ */
+#endif /* CURIE_DEMOS_UR5_DESCARTES_H_ */
