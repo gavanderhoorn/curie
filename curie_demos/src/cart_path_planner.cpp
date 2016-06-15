@@ -66,29 +66,13 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
   // Load Descartes ------------------------------------------------
 
   // creating application
-  ur5_descartes_.reset(new curie_demos::UR5DescartesApp(imarker_cartesian_->getVisualTools()));
+  ur5_descartes_app_.reset(new curie_demos::UR5DescartesApp(imarker_cartesian_->getVisualTools(), parent_->jmg_));
 
   // loading parameters
-  ur5_descartes_->loadParameters();
+  ur5_descartes_app_->loadParameters();
 
   // initializing descartes
-  ur5_descartes_->initDescartes();
-
-  // generating trajectory
-  curie_demos::DescartesTrajectory traj;
-  ur5_descartes_->generateTrajectory(traj);
-
-  // planning robot path
-  curie_demos::DescartesTrajectory output_path;
-  ur5_descartes_->planPath(traj, output_path);
-
-  // running robot path
-  moveit_msgs::RobotTrajectory moveit_traj = ur5_descartes_->runPath(output_path);
-
-  std::cout << "moveit_traj: " << moveit_traj << std::endl;
-
-  const bool blocking = true;
-  imarker_cartesian_->getVisualTools()->publishTrajectoryPath(moveit_traj, imarker_state_, blocking);
+  ur5_descartes_app_->initDescartes();
 
   ROS_INFO_STREAM_NAMED(name_, "CartPathPlanner Ready.");
 }
@@ -97,41 +81,36 @@ void CartPathPlanner::processIMarkerPose(const visualization_msgs::InteractiveMa
                                          const Eigen::Affine3d &feedback_pose)
 {
   imarker_state_ = imarker_cartesian_->getRobotState();
-  computePath();
-
-  /*
   Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
 
-  // Get all possible solutions
-  std::vector<std::vector<double> > joint_poses;
-  if (!ur5_descartes_->robot_model_ptr_->getAllIK(start_pose, joint_poses))
-  {
-    ROS_ERROR_STREAM_NAMED(name_, "getAllIK returned false");
-    return;
-  }
-
-  // Error check
-  if (joint_poses.empty())
-  {
-    ROS_ERROR_STREAM_NAMED(name_, "getAllIK returned no solutions");
-    return;
-  }
-
-  // Visualize all returned solutions
-  for (std::size_t i = 0; i < 1; ++i) //joint_poses.size(); ++i)
-  {
-    std::cout << "settting joint pose: " << i << " -- ";
-    std::copy(joint_poses[i].begin(), joint_poses[i].end(), std::ostream_iterator<double>(std::cout, ", "));
-    std::cout << std::endl;
-
-    imarker_state_->setJointGroupPositions("right_arm", joint_poses[i]);
-    imarker_cartesian_->getVisualTools()->publishRobotState(imarker_state_, rvt::RAND);
-    //ros::Duration(0.5).sleep();
-  }
-  */
+  //computeMoveItCartPath(start_pose);
+  computeDescartesCartPath(start_pose);
 }
 
-bool CartPathPlanner::computePath()
+bool CartPathPlanner::computeDescartesCartPath(const Eigen::Affine3d &start_pose)
+{
+  ROS_INFO_STREAM_NAMED(name_, "computeDescartesCartPath()");
+
+  // generating trajectory
+  curie_demos::DescartesTrajectory traj;
+  ur5_descartes_app_->generateTrajectory(traj);
+
+  // planning robot path
+  curie_demos::DescartesTrajectory output_path;
+  ur5_descartes_app_->planPath(traj, output_path);
+
+  // running robot path
+  moveit_msgs::RobotTrajectory moveit_traj = ur5_descartes_app_->runPath(output_path);
+
+  std::cout << "moveit_traj: " << moveit_traj << std::endl;
+
+  const bool blocking = true;
+  imarker_cartesian_->getVisualTools()->publishTrajectoryPath(moveit_traj, imarker_state_, blocking);
+
+  return true;
+}
+
+bool CartPathPlanner::computeMoveItCartPath(const Eigen::Affine3d &start_pose)
 {
   // Plan cartesian path
   trajectory_.clear();
@@ -142,7 +121,6 @@ bool CartPathPlanner::computePath()
                            // points on the resulting path
 
   // this is the Cartesian pose we start from, and we move in the direction indicated
-  Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
   trajectory_.push_back(moveit::core::RobotStatePtr(new moveit::core::RobotState(*imarker_state_)));
 
   // The target pose is built by applying a translation to the start pose for the desired direction and distance
@@ -209,7 +187,8 @@ bool CartPathPlanner::getTrajectory(std::vector<moveit::core::RobotStatePtr> &tr
   if (trajectory_.empty())
   {
     imarker_state_ = imarker_cartesian_->getRobotState();
-    computePath();
+    Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
+    computeMoveItCartPath(start_pose);
   }
 
   if (trajectory_.empty())

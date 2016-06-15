@@ -64,25 +64,15 @@ struct DemoConfiguration
   double min_point_distance; /* Minimum distance between consecutive trajectory points. */
 };
 
-/*  =============================== Application Class ===============================
- *
+/*
  * Provides a group of functions for planning and executing a robot path using Moveit and
  * the Descartes Planning Library
- *
  */
 class UR5DescartesApp
 {
 public:
-  /*  Constructor
-   *    Creates an instance of the application class
-   */
-  UR5DescartesApp(moveit_visual_tools::MoveItVisualToolsPtr visual_tools);
 
-  /* Main Application Functions
-   *  Functions that allow carrying out the various steps needed to run a
-   *  plan an run application.  All these functions will be invoked from within
-   *  the main routine.
-   */
+  UR5DescartesApp(moveit_visual_tools::MoveItVisualToolsPtr visual_tools, moveit::core::JointModelGroup* jmg);
 
   void loadParameters();
   void initDescartes();
@@ -90,11 +80,7 @@ public:
   void planPath(DescartesTrajectory& input_traj, DescartesTrajectory& output_path);
   moveit_msgs::RobotTrajectory runPath(const DescartesTrajectory& path);
 
-  /* Support methods
-   *  Called from within the main application functions in order to perform convenient tasks.
-   */
-
-  static bool createLemniscateCurve(double foci_distance, double sphere_radius, int num_points, int num_lemniscates,
+  bool createLemniscateCurve(double foci_distance, double sphere_radius, int num_points, int num_lemniscates,
                                     const Eigen::Vector3d& sphere_center, EigenSTL::vector_Affine3d& poses);
 
   void fromDescartesToMoveitTrajectory(const DescartesTrajectory& in_traj, trajectory_msgs::JointTrajectory& out_traj);
@@ -112,13 +98,16 @@ public:
   // For visualizing
   moveit_visual_tools::MoveItVisualToolsPtr visual_tools_;
 
-  /* Application Descartes Constructs
-   *  Components accessing the path planning capabilities in the Descartes library
-   */
-  descartes_core::RobotModelPtr ur5_robot_model_; /* Performs tasks specific to the Robot
-                                                     such IK, FK and collision detection*/
-  descartes_planner::SparsePlanner planner_;      /* Plans a smooth robot path given a trajectory of points */
-  // descartes_planner::DensePlanner planner_;
+  // The planning group to work on
+  moveit::core::JointModelGroup* jmg_;
+
+  // Performs tasks specific to the Robot such IK, FK and collision detection*/
+  descartes_core::RobotModelPtr ur5_robot_model_;
+
+
+  // Plans a smooth robot path given a trajectory of points
+  //descartes_planner::SparsePlanner planner_;
+  descartes_planner::DensePlanner planner_;
 };
 
 // Create boost pointers for this class

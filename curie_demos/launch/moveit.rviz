@@ -6,9 +6,13 @@ Panels:
       Expanded:
         - /Grid1/Offset1
         - /Viz1to61
+        - /Viz1to61/RobotState3
+        - /Viz1to61/RobotState3/Links1
+        - /Viz1to61/RobotState3/Links1/right_gripper_target1
         - /PlanningScene1/Scene Geometry1
         - /PlanningScene1/Scene Robot1
         - /InteractiveMarkers1
+        - /TF1/Frames1
       Splitter Ratio: 0.561969
     Tree Height: 770
   - Class: rviz/Help
@@ -1402,7 +1406,7 @@ Visualization Manager:
               Value: true
             right_gripper_target:
               Alpha: 1
-              Show Axes: false
+              Show Axes: true
               Show Trail: false
             right_robotiq_85_adapter_link:
               Alpha: 1
@@ -2722,25 +2726,52 @@ Visualization Manager:
           Marker Topic: /hilgendorf/cartesian_trajectory
           Name: Cart
           Namespaces:
-            Arrow: true
+            axes: true
+            line: true
           Queue Size: 100
           Value: true
       Enabled: true
       Name: InteractiveMarkers
     - Class: rviz/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        world:
+          Value: true
+        world_visual1:
+          Value: true
+        world_visual2:
+          Value: true
+        world_visual3:
+          Value: true
+        world_visual4:
+          Value: true
+        world_visual5:
+          Value: true
+        world_visual6:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        world:
+          world_visual1:
+            {}
+          world_visual2:
+            {}
+          world_visual3:
+            {}
+          world_visual4:
+            {}
+          world_visual5:
+            {}
+          world_visual6:
+            {}
       Update Interval: 0
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 45; 53; 53
@@ -2749,26 +2780,28 @@ Visualization Manager:
   Name: root
   Tools:
     - Class: moveit_dashboard/KeyTool
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
   Value: true
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 7.36121
+      Distance: 1.54455
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.581779
-        Y: -1.47268
-        Z: -3.17435e-06
+        X: 0.473291
+        Y: -0.254841
+        Z: -2.66771e-06
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.489798
+      Pitch: 0.744797
       Target Frame: robot_table_link
       Value: XYOrbit (rviz)
-      Yaw: 6.21827
+      Yaw: 0.165081
     Saved: ~
 Window Geometry:
   Displays:
@@ -2786,5 +2819,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1920
-  X: 754
-  Y: -14
+  X: 764
+  Y: 24

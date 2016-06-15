@@ -344,6 +344,8 @@ bool CurieDemos::runProblems()
     if (!ros::ok())
       break;
 
+    waitForNextStep("run plan");
+
     std::cout << std::endl;
     std::cout << "------------------------------------------------------------------------" << std::endl;
     ROS_INFO_STREAM_NAMED("plan", "Planning " << run_id + 1 << " out of " << planning_runs_);

@@ -9,7 +9,7 @@ curie_demos:
   preprocess_spars: false
   create_spars: true
   continue_spars: false # even if a file has been saved, randomly sample for more coverage
-  run_problems: false # do plans?
+  run_problems: true # do plans?
 
   # run type
   headless: false
@@ -36,7 +36,7 @@ curie_demos:
 
 # ====================================================
 debug_interface:
-  autonomous: true
+  autonomous: false
   full_autonomous: false # TODO this is not used
 
 # ====================================================
@@ -138,14 +138,14 @@ ur5_descartes_app:
   group_name: right_arm
   tip_link: right_gripper_target
   base_link: base_link
-  world_frame: base_link
+  world_frame: base_link # TODO it bothers me this is required
   trajectory:
     time_delay: 0.1
     foci_distance: 0.07
     radius: 0.097
     num_points: 200
     num_lemniscates: 4
-    center: [0.6, -0.2, 0.2]
+    center: [0.6, -0.5, 0.2] # location of center of lemniscarte curve from world_frame
     seed_pose: [0.0, -1.7, 1.7 , 0.0, 1.5, 0.0]
   visualization:
     min_point_distance: 0.02

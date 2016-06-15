@@ -65,7 +65,8 @@ public:
   void processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback,
                           const Eigen::Affine3d& feedback_pose);
 
-  bool computePath();
+  bool computeMoveItCartPath(const Eigen::Affine3d &start_pose);
+  bool computeDescartesCartPath(const Eigen::Affine3d &start_pose);
 
   /**
    * \brief Get the cartesian trajectory
@@ -96,7 +97,7 @@ private:
   IMarkerRobotStatePtr imarker_cartesian_;
 
   // Descartes
-  UR5DescartesAppPtr ur5_descartes_;
+  UR5DescartesAppPtr ur5_descartes_app_;
 };  // end class
 
 // Create boost pointers for this class
