@@ -40,9 +40,6 @@
 #include <curie_demos/cart_path_planner.h>
 #include <curie_demos/curie_demos.h>
 
-// ROS parameter loading
-//#include <rosparam_shortcuts/rosparam_shortcuts.h>
-
 // moveit_boilerplate
 #include <moveit_boilerplate/namespaces.h>
 
@@ -67,7 +64,6 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
 
   // Load Descartes ------------------------------------------------
 
-  /*
   // creating application
   ur5_descartes_.reset(new curie_demos::UR5DescartesApp(imarker_cartesian_->getVisualTools()));
 
@@ -77,22 +73,21 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
   // initializing descartes
   ur5_descartes_->initDescartes();
 
-    // generating trajectory
-    curie_demos::DescartesTrajectory traj;
-    ur5_descartes_->generateTrajectory(traj);
+  // generating trajectory
+  curie_demos::DescartesTrajectory traj;
+  ur5_descartes_->generateTrajectory(traj);
 
-    // planning robot path
-    curie_demos::DescartesTrajectory output_path;
-    ur5_descartes_->planPath(traj,output_path);
+  // planning robot path
+  curie_demos::DescartesTrajectory output_path;
+  ur5_descartes_->planPath(traj,output_path);
 
-    // running robot path
-    moveit_msgs::RobotTrajectory moveit_traj = ur5_descartes_->runPath(output_path);
+  // running robot path
+  moveit_msgs::RobotTrajectory moveit_traj = ur5_descartes_->runPath(output_path);
 
-    std::cout << "moveit_traj: " << moveit_traj << std::endl;
+  std::cout << "moveit_traj: " << moveit_traj << std::endl;
 
-    const bool blocking = true;
-    imarker_cartesian_->getVisualTools()->publishTrajectoryPath(moveit_traj, imarker_state_, blocking);
-  */
+  const bool blocking = true;
+  imarker_cartesian_->getVisualTools()->publishTrajectoryPath(moveit_traj, imarker_state_, blocking);
 
 
   ROS_INFO_STREAM_NAMED(name_, "CartPathPlanner Ready.");

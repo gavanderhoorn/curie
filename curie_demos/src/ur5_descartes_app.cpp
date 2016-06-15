@@ -43,24 +43,18 @@
 
 namespace curie_demos
 {
-
 UR5DescartesApp::UR5DescartesApp(moveit_visual_tools::MoveItVisualToolsPtr visual_tools)
-  : nh_("~")
-  , name_("ur5_descartes_app")
-  , visual_tools_(visual_tools)
+  : nh_("~"), visual_tools_(visual_tools)
 {
-
-}
-
-UR5DescartesApp::~UR5DescartesApp()
-{
-
 }
 
 void UR5DescartesApp::initDescartes()
 {
+  ROS_INFO_STREAM_NAMED(name_, "initDescartes()");
+
   // Instantiating a robot model
-  robot_model_ptr_.reset(new ur5_demo_descartes::UR5RobotModel());
+  const std::string prefix = "right_";
+  ur5_robot_model_.reset(new ur5_demo_descartes::UR5RobotModel(prefix));
 
   /*  Fill Code:
    * Goal:
@@ -74,10 +68,7 @@ void UR5DescartesApp::initDescartes()
    *    c - world_frame string
    *    d - tip_link string.
    */
-  if(robot_model_ptr_->initialize(ROBOT_DESCRIPTION_PARAM,
-                                  config_.group_name,
-                                  config_.world_frame,
-                                  config_.tip_link))
+  if (ur5_robot_model_->initialize(ROBOT_DESCRIPTION_PARAM, config_.group_name, config_.world_frame, config_.tip_link))
   {
     ROS_INFO_STREAM("Descartes Robot Model initialized");
   }
@@ -87,18 +78,18 @@ void UR5DescartesApp::initDescartes()
     exit(-1);
   }
 
-  //Turn on collision checking.
+  // Turn on collision checking.
   ROS_WARN_STREAM_NAMED(name_, "disabled collision checking");
-  //robot_model_ptr_->setCheckCollisions(true);
+  // ur5_robot_model_->setCheckCollisions(true);
 
   /*  Fill Code:
    * Goal:
    * - Initialize the Descartes path planner by calling "planner_.initialize(...)".
-   * - Pass the robot_model_ptr_ created earlier into the initialize method and save the result
+   * - Pass the ur5_robot_model_ created earlier into the initialize method and save the result
    *    into the "succeeded" variable.
    */
-  bool succeeded = planner_.initialize(robot_model_ptr_);
-  if(succeeded)
+  bool succeeded = planner_.initialize(ur5_robot_model_);
+  if (succeeded)
   {
     ROS_INFO_STREAM("Descartes Dense Planner initialized");
   }
@@ -107,32 +98,35 @@ void UR5DescartesApp::initDescartes()
     ROS_ERROR_STREAM("Failed to initialize Dense Planner");
     exit(-1);
   }
-
 }
 
 void UR5DescartesApp::loadParameters()
 {
+  ROS_INFO_STREAM_NAMED(name_, "loadParameters()");
+
   // Load rosparams
   ros::NodeHandle rpnh(nh_, name_);
   std::size_t error = 0;
-  error += !rosparam_shortcuts::get(name_, rpnh, "group_name",config_.group_name);
-  error += !rosparam_shortcuts::get(name_, rpnh, "tip_link",config_.tip_link);
-  error += !rosparam_shortcuts::get(name_, rpnh, "base_link",config_.base_link);
-  error += !rosparam_shortcuts::get(name_, rpnh, "world_frame",config_.world_frame);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/time_delay",config_.time_delay);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/foci_distance",config_.foci_distance);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/radius",config_.radius);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/num_points",config_.num_points);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/num_lemniscates",config_.num_lemniscates);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/center",config_.center);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/seed_pose",config_.seed_pose);
-  error += !rosparam_shortcuts::get(name_, rpnh, "visualization/min_point_distance",config_.min_point_distance);
-  error += !rosparam_shortcuts::get(name_, rpnh, "controller_joint_names",config_.joint_names);
+  error += !rosparam_shortcuts::get(name_, rpnh, "group_name", config_.group_name);
+  error += !rosparam_shortcuts::get(name_, rpnh, "tip_link", config_.tip_link);
+  error += !rosparam_shortcuts::get(name_, rpnh, "base_link", config_.base_link);
+  error += !rosparam_shortcuts::get(name_, rpnh, "world_frame", config_.world_frame);
+  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/time_delay", config_.time_delay);
+  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/foci_distance", config_.foci_distance);
+  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/radius", config_.radius);
+  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/num_points", config_.num_points);
+  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/num_lemniscates", config_.num_lemniscates);
+  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/center", config_.center);
+  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/seed_pose", config_.seed_pose);
+  error += !rosparam_shortcuts::get(name_, rpnh, "visualization/min_point_distance", config_.min_point_distance);
+  error += !rosparam_shortcuts::get(name_, rpnh, "controller_joint_names", config_.joint_names);
   rosparam_shortcuts::shutdownIfError(name_, error);
 }
 
-void UR5DescartesApp::planPath(DescartesTrajectory& input_traj,DescartesTrajectory& output_path)
+void UR5DescartesApp::planPath(DescartesTrajectory& input_traj, DescartesTrajectory& output_path)
 {
+  ROS_INFO_STREAM_NAMED(name_, "planPath()");
+
   // planning robot path
   /*  Fill Code:
    * Goal:
@@ -169,24 +163,25 @@ void UR5DescartesApp::planPath(DescartesTrajectory& input_traj,DescartesTrajecto
    */
   succeeded = planner_.getPath(output_path);
 
-  if(!succeeded || output_path.empty())
+  if (!succeeded || output_path.empty())
   {
     ROS_ERROR_STREAM("Failed to retrieve robot path");
   }
-
 }
 
 moveit_msgs::RobotTrajectory UR5DescartesApp::runPath(const DescartesTrajectory& path)
 {
-  std::vector<double> seed_pose(robot_model_ptr_->getDOF());
+  ROS_INFO_STREAM_NAMED(name_, "runPath()");
+
+  std::vector<double> seed_pose(ur5_robot_model_->getDOF());
   std::vector<double> start_pose;
 
   descartes_core::TrajectoryPtPtr first_point_ptr = path[0];
-  first_point_ptr->getNominalJointPose(seed_pose,*robot_model_ptr_,start_pose);
+  first_point_ptr->getNominalJointPose(seed_pose, *ur5_robot_model_, start_pose);
 
   // creating Moveit trajectory from Descartes Trajectory
   moveit_msgs::RobotTrajectory moveit_traj;
-  fromDescartesToMoveitTrajectory(path,moveit_traj.joint_trajectory);
+  fromDescartesToMoveitTrajectory(path, moveit_traj.joint_trajectory);
 
   // sending robot path to server for execution
   return moveit_traj;
@@ -194,6 +189,8 @@ moveit_msgs::RobotTrajectory UR5DescartesApp::runPath(const DescartesTrajectory&
 
 void UR5DescartesApp::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses)
 {
+  ROS_INFO_STREAM_NAMED(name_, "publishPosesMarkers()");
+
   // creating rviz markers
   visualization_msgs::Marker z_axes, y_axes, x_axes, line;
   visualization_msgs::MarkerArray markers_msg;
@@ -240,34 +237,34 @@ void UR5DescartesApp::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses
   line.color.a = 1;
 
   // creating axes markers
-  z_axes.points.reserve(2*poses.size());
-  y_axes.points.reserve(2*poses.size());
-  x_axes.points.reserve(2*poses.size());
+  z_axes.points.reserve(2 * poses.size());
+  y_axes.points.reserve(2 * poses.size());
+  x_axes.points.reserve(2 * poses.size());
   line.points.reserve(poses.size());
-  geometry_msgs::Point p_start,p_end;
+  geometry_msgs::Point p_start, p_end;
   double distance = 0;
   Eigen::Affine3d prev = poses[0];
-  for(unsigned int i = 0; i < poses.size(); i++)
+  for (unsigned int i = 0; i < poses.size(); i++)
   {
     const Eigen::Affine3d& pose = poses[i];
     distance = (pose.translation() - prev.translation()).norm();
 
-    tf::pointEigenToMsg(pose.translation(),p_start);
+    tf::pointEigenToMsg(pose.translation(), p_start);
 
-    if(distance > config_.min_point_distance)
+    if (distance > config_.min_point_distance)
     {
-      Eigen::Affine3d moved_along_x = pose * Eigen::Translation3d(AXIS_LINE_LENGHT,0,0);
-      tf::pointEigenToMsg(moved_along_x.translation(),p_end);
+      Eigen::Affine3d moved_along_x = pose * Eigen::Translation3d(AXIS_LINE_LENGHT, 0, 0);
+      tf::pointEigenToMsg(moved_along_x.translation(), p_end);
       x_axes.points.push_back(p_start);
       x_axes.points.push_back(p_end);
 
-      Eigen::Affine3d moved_along_y = pose * Eigen::Translation3d(0,AXIS_LINE_LENGHT,0);
-      tf::pointEigenToMsg(moved_along_y.translation(),p_end);
+      Eigen::Affine3d moved_along_y = pose * Eigen::Translation3d(0, AXIS_LINE_LENGHT, 0);
+      tf::pointEigenToMsg(moved_along_y.translation(), p_end);
       y_axes.points.push_back(p_start);
       y_axes.points.push_back(p_end);
 
-      Eigen::Affine3d moved_along_z = pose * Eigen::Translation3d(0,0,AXIS_LINE_LENGHT);
-      tf::pointEigenToMsg(moved_along_z.translation(),p_end);
+      Eigen::Affine3d moved_along_z = pose * Eigen::Translation3d(0, 0, AXIS_LINE_LENGHT);
+      tf::pointEigenToMsg(moved_along_z.translation(), p_end);
       z_axes.points.push_back(p_start);
       z_axes.points.push_back(p_end);
 
@@ -287,19 +284,21 @@ void UR5DescartesApp::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses
   visual_tools_->triggerBatchPublish();
 }
 
-bool UR5DescartesApp::createLemniscateCurve(double foci_distance, double sphere_radius,
-                                            int num_points, int num_lemniscates,const Eigen::Vector3d& sphere_center,
+bool UR5DescartesApp::createLemniscateCurve(double foci_distance, double sphere_radius, int num_points,
+                                            int num_lemniscates, const Eigen::Vector3d& sphere_center,
                                             EigenSTL::vector_Affine3d& poses)
 {
+  // ROS_INFO_STREAM_NAMED(name_, "createLemniscateCurve()");
+
   double a = foci_distance;
   double ro = sphere_radius;
   int npoints = num_points;
   int nlemns = num_lemniscates;
-  Eigen::Vector3d offset(sphere_center[0],sphere_center[1],sphere_center[2]);
-  Eigen::Vector3d unit_z,unit_y,unit_x;
+  Eigen::Vector3d offset(sphere_center[0], sphere_center[1], sphere_center[2]);
+  Eigen::Vector3d unit_z, unit_y, unit_x;
 
   // checking parameters
-  if(a <= 0 || ro <= 0 || npoints < 10 || nlemns < 1)
+  if (a <= 0 || ro <= 0 || npoints < 10 || nlemns < 1)
   {
     ROS_ERROR_STREAM("Invalid parameters for lemniscate curve were found");
     return false;
@@ -309,61 +308,57 @@ bool UR5DescartesApp::createLemniscateCurve(double foci_distance, double sphere_
   std::vector<double> theta(npoints);
 
   // interval 1 <-pi/4 , pi/4 >
-  double d_theta = 2*M_PI_2/(npoints - 1);
-  for(unsigned int i = 0; i < static_cast<std::size_t>(npoints)/2;i++)
+  double d_theta = 2 * M_PI_2 / (npoints - 1);
+  for (unsigned int i = 0; i < static_cast<std::size_t>(npoints) / 2; i++)
   {
-    theta[i] = -M_PI_4  + i * d_theta;
+    theta[i] = -M_PI_4 + i * d_theta;
   }
   theta[0] = theta[0] + EPSILON;
-  theta[npoints/2 - 1] = theta[npoints/2 - 1] - EPSILON;
+  theta[npoints / 2 - 1] = theta[npoints / 2 - 1] - EPSILON;
 
   // interval 2 < 3*pi/4 , 5 * pi/4 >
-  for(unsigned int i = 0; i < static_cast<std::size_t>(npoints)/2;i++)
+  for (unsigned int i = 0; i < static_cast<std::size_t>(npoints) / 2; i++)
   {
-    theta[npoints/2 + i] = 3*M_PI_4  + i * d_theta;
+    theta[npoints / 2 + i] = 3 * M_PI_4 + i * d_theta;
   }
-  theta[npoints/2] = theta[npoints/2] + EPSILON;
+  theta[npoints / 2] = theta[npoints / 2] + EPSILON;
   theta[npoints - 1] = theta[npoints - 1] - EPSILON;
 
   // generating omega angle (lemniscate angle offset)
   std::vector<double> omega(nlemns);
-  double d_omega = M_PI/(nlemns);
-  for(unsigned int i = 0; i < static_cast<std::size_t>(nlemns);i++)
+  double d_omega = M_PI / (nlemns);
+  for (unsigned int i = 0; i < static_cast<std::size_t>(nlemns); i++)
   {
-     omega[i] = i*d_omega;
+    omega[i] = i * d_omega;
   }
 
   Eigen::Affine3d pose;
-  double x,y,z,r,phi;
+  double x, y, z, r, phi;
 
   poses.clear();
-  poses.reserve(nlemns*npoints);
-  for(unsigned int j = 0; j < static_cast<std::size_t>(nlemns);j++)
+  poses.reserve(nlemns * npoints);
+  for (unsigned int j = 0; j < static_cast<std::size_t>(nlemns); j++)
   {
-    for(unsigned int i = 0 ; i < static_cast<std::size_t>(npoints);i++)
+    for (unsigned int i = 0; i < static_cast<std::size_t>(npoints); i++)
     {
-      r = std::sqrt( std::pow(a,2) * std::cos(2*theta[i]) );
-      phi = r < ro ? std::asin(r/ro):  (M_PI - std::asin((2*ro - r)/ro) );
+      r = std::sqrt(std::pow(a, 2) * std::cos(2 * theta[i]));
+      phi = r < ro ? std::asin(r / ro) : (M_PI - std::asin((2 * ro - r) / ro));
 
       x = ro * std::cos(theta[i] + omega[j]) * std::sin(phi);
       y = ro * std::sin(theta[i] + omega[j]) * std::sin(phi);
       z = ro * std::cos(phi);
 
       // determining orientation
-      unit_z <<-x, -y , -z;
+      unit_z << -x, -y, -z;
       unit_z.normalize();
 
-      unit_x = (Eigen::Vector3d(0,1,0).cross( unit_z)).normalized();
-      unit_y = (unit_z .cross(unit_x)).normalized();
+      unit_x = (Eigen::Vector3d(0, 1, 0).cross(unit_z)).normalized();
+      unit_y = (unit_z.cross(unit_x)).normalized();
 
       Eigen::Matrix3d rot;
-      rot << unit_x(0),unit_y(0),unit_z(0)
-         ,unit_x(1),unit_y(1),unit_z(1)
-         ,unit_x(2),unit_y(2),unit_z(2);
+      rot << unit_x(0), unit_y(0), unit_z(0), unit_x(1), unit_y(1), unit_z(1), unit_x(2), unit_y(2), unit_z(2);
 
-      pose = Eigen::Translation3d(offset(0) + x,
-                                  offset(1) + y,
-                                  offset(2) + z) * rot;
+      pose = Eigen::Translation3d(offset(0) + x, offset(1) + y, offset(2) + z) * rot;
 
       poses.push_back(pose);
     }
@@ -375,6 +370,8 @@ bool UR5DescartesApp::createLemniscateCurve(double foci_distance, double sphere_
 void UR5DescartesApp::fromDescartesToMoveitTrajectory(const DescartesTrajectory& in_traj,
                                                       trajectory_msgs::JointTrajectory& out_traj)
 {
+  ROS_INFO_STREAM_NAMED(name_, "fromDescartesToMoveitTrajectory()");
+
   // Fill out information about our trajectory
   out_traj.header.stamp = ros::Time::now();
   out_traj.header.frame_id = config_.world_frame;
@@ -391,7 +388,7 @@ void UR5DescartesApp::fromDescartesToMoveitTrajectory(const DescartesTrajectory&
 
     // getting joint position at current point
     const descartes_core::TrajectoryPtPtr& joint_point = in_traj[i];
-    joint_point->getNominalJointPose(std::vector<double>(), *robot_model_ptr_, joints);
+    joint_point->getNominalJointPose(std::vector<double>(), *ur5_robot_model_, joints);
 
     // Fill out a ROS trajectory point
     trajectory_msgs::JointTrajectoryPoint pt;
@@ -408,22 +405,22 @@ void UR5DescartesApp::fromDescartesToMoveitTrajectory(const DescartesTrajectory&
 
     out_traj.points.push_back(pt);
   }
-
 }
 
 void UR5DescartesApp::generateTrajectory(DescartesTrajectory& traj)
 {
+  ROS_INFO_STREAM_NAMED(name_, "generateTrajectory()");
+
   using namespace descartes_core;
   using namespace descartes_trajectory;
-
 
   // generating trajectory using a lemniscate curve function.
   EigenSTL::vector_Affine3d poses;
   Eigen::Vector3d center(config_.center[0], config_.center[1], config_.center[2]);
-  if(createLemniscateCurve(config_.foci_distance, config_.radius, config_.num_points,
-                           config_.num_lemniscates, center, poses))
+  if (createLemniscateCurve(config_.foci_distance, config_.radius, config_.num_points, config_.num_lemniscates, center,
+                            poses))
   {
-    ROS_INFO_STREAM("Trajectory with "<<poses.size()<<" points was generated");
+    ROS_INFO_STREAM("Trajectory with " << poses.size() << " points was generated");
   }
   else
   {
@@ -439,14 +436,14 @@ void UR5DescartesApp::generateTrajectory(DescartesTrajectory& traj)
   // creating descartes trajectory points
   traj.clear();
   traj.reserve(poses.size());
-  for(unsigned int i = 0; i < poses.size(); i++)
+  for (unsigned int i = 0; i < poses.size(); i++)
   {
-    //const Eigen::Affine3d& pose = poses[i];
+    // const Eigen::Affine3d& pose = poses[i];
     Eigen::Affine3d pose = transform * poses[i];
 
     // Get all possible solutions
     std::vector<std::vector<double> > joint_poses;
-    if (!robot_model_ptr_->getAllIK(pose, joint_poses))
+    if (!ur5_robot_model_->getAllIK(pose, joint_poses))
     {
       ROS_ERROR_STREAM_NAMED(name_, "getAllIK returned false");
       return;
@@ -465,16 +462,13 @@ void UR5DescartesApp::generateTrajectory(DescartesTrajectory& traj)
      * Create AxialSymetricPt objects in order to define a trajectory cartesian point with
      *    rotational freedom about the tool's z axis.
      */
-    descartes_core::TrajectoryPtPtr pt = descartes_core::TrajectoryPtPtr(
-        new descartes_trajectory::AxialSymmetricPt(pose, ORIENTATION_INCREMENT,
-                                                   descartes_trajectory::AxialSymmetricPt::FreeAxis::Z_AXIS,
-                                                    descartes_core::TimingConstraint(0.5) ) );
+    descartes_core::TrajectoryPtPtr pt = descartes_core::TrajectoryPtPtr(new descartes_trajectory::AxialSymmetricPt(
+        pose, ORIENTATION_INCREMENT, descartes_trajectory::AxialSymmetricPt::FreeAxis::Z_AXIS,
+        descartes_core::TimingConstraint(0.5)));
 
     // saving points into trajectory
     traj.push_back(pt);
   }
-
 }
-
 
 } /* namespace curie_demos */

@@ -9,7 +9,7 @@ curie_demos:
   preprocess_spars: false
   create_spars: true
   continue_spars: false # even if a file has been saved, randomly sample for more coverage
-  run_problems: true # do plans?
+  run_problems: false # do plans?
 
   # run type
   headless: false
@@ -137,8 +137,8 @@ arm_prefix: right_
 ur5_descartes_app:
   group_name: right_arm
   tip_link: right_gripper_target
-  base_link: right_base_link
-  world_frame: world
+  base_link: base_link
+  world_frame: base_link
   trajectory:
     time_delay: 0.1
     foci_distance: 0.07

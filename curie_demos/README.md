@@ -129,6 +129,12 @@ Unfinished test code
 
     rosrun curie_demos test_pose_distance
 
+## ROSCon Demo
+
+    roslaunch plan_and_run demo_setup.launch sim:=true
+    roslaunch hilgendorf_moveit_config move_group.launch allow_trajectory_execution:=true fake_execution:=false info:=true debug:=true
+    roslaunch plan_and_run demo_run.launch
+
 ## Testing and Linting
 
 To run [roslint](http://wiki.ros.org/roslint), use the following command with [catkin-tools](https://catkin-tools.readthedocs.org/):

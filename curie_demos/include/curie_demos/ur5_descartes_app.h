@@ -80,7 +80,6 @@ public:
    *    Creates an instance of the application class
    */
   UR5DescartesApp(moveit_visual_tools::MoveItVisualToolsPtr visual_tools);
-  virtual ~UR5DescartesApp();
 
   /* Main Application Functions
    *  Functions that allow carrying out the various steps needed to run a
@@ -111,7 +110,7 @@ public:
   //-------------------------------------
 
   ros::NodeHandle nh_; //Object used for creating and managing ros application resources
-  std::string name_; // short application name
+  std::string name_ = "ur5_descartes_app"; // short application name
 
   // Holds the data used by the various functions in the application.
   DemoConfiguration config_;
@@ -122,7 +121,7 @@ public:
   /* Application Descartes Constructs
    *  Components accessing the path planning capabilities in the Descartes library
    */
-  descartes_core::RobotModelPtr robot_model_ptr_; /* Performs tasks specific to the Robot
+  descartes_core::RobotModelPtr ur5_robot_model_; /* Performs tasks specific to the Robot
                                                      such IK, FK and collision detection*/
   descartes_planner::SparsePlanner planner_;      /* Plans a smooth robot path given a trajectory of points */
   //descartes_planner::DensePlanner planner_;
