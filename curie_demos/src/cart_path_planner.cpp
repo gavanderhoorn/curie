@@ -118,6 +118,7 @@ bool CartPathPlanner::generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_gra
   ros::Time start_time = ros::Time::now();
 
   // planning robot path
+  std::cout << std::setprecision(4);
   bool result = planner_.insertGraph(traj);
 
   if (result)
@@ -135,41 +136,91 @@ bool CartPathPlanner::generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_gra
     exit(-1);
   }
 
+  return convertDescartesGraphToBolt(task_graph);
+}
+
+bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph)
+{
+  std::size_t indent = 0;
+
   // Convert graph formats from Descartes to Bolt
   using namespace descartes_planner;
   using namespace descartes_core;
   using namespace descartes_trajectory;
 
-  // Iterate through vertices
+  // For converting to MoveIt! format
+  moveit::core::RobotStatePtr moveit_robot_state(new moveit::core::RobotState(*visual_tools_->getSharedRobotState()));
+  std::vector<double> empty_seed;  // seed is required but not used by getNominalJointPose()
+  moveit_ompl::ModelBasedStateSpacePtr space = parent_->space_;
+
+  // Map from a Descartes vertex to a Bolt vertex
+  std::map<JointGraph::vertex_descriptor, ompl::tools::bolt::TaskVertex> descarteToBoltVertex;
+
+  ompl::tools::bolt::TaskVertex startingVertex = task_graph->getNumVertices() - 1;
   std::size_t new_vertex_count = 0;
-  PlanningGraph& g = planner_.getPlanningGraph();
-  std::pair<VertexIterator, VertexIterator> vi = vertices(g.getGraph());
+  const ompl::tools::bolt::VertexType vertex_type = ompl::tools::bolt::CARTESIAN;
+  const ompl::tools::bolt::VertexLevel level = 1;  // middle layer
+  const PlanningGraph& pg = planner_.getPlanningGraph();
+
+  // force visualization
+  //task_graph->visualizeTaskGraph_ = true;
+
+  // Iterate through vertices
+  std::pair<VertexIterator, VertexIterator> vi = vertices(pg.getGraph());
   for (VertexIterator vert_iter = vi.first; vert_iter != vi.second; ++vert_iter)
   {
     JointGraph::vertex_descriptor jv = *vert_iter;
-    g.getVertexData(jv);
 
     // Get the joint values for this vertex and convert to a MoveIt! robot state
-    TrajectoryPt::ID tajectory_id = g.getGraph()[jv].id;
-    JointMap& joint_map = g.getJointMap();
-    JointTrajectoryPt &pt = joint_map[tajectory_id];
+    TrajectoryPt::ID tajectory_id = pg.getGraph()[jv].id;
+    const JointMap& joint_map = pg.getJointMap();
+    const JointTrajectoryPt& pt = joint_map.at(tajectory_id);
 
-    std::vector<double> joint_pose;
-    std::vector<double> empty_seed;
-    pt.getNominalJointPose(empty_seed, *ur5_robot_model_, joint_pose);
+    std::vector<double> joints_pose;
+    pt.getNominalJointPose(empty_seed, *ur5_robot_model_, joints_pose);
 
-    std::cout << "joint pose: ";
-    std::copy(joint_pose.begin(), joint_pose.end(), std::ostream_iterator<double>(std::cout, ", "));
-    std::cout << std::endl;
+    // Copy vector into moveit format
+    moveit_robot_state->setJointGroupPositions(jmg_, joints_pose);
+
+    // Create new OMPL state
+    ompl::base::State* ompl_state = space->allocState();
 
     // Convert the MoveIt! robot state into an OMPL state
+    space->copyToOMPLState(ompl_state, *moveit_robot_state);
 
     // Add vertex to task graph
-    // task_graph->addVertex();
+    descarteToBoltVertex[jv] = task_graph->addVertex(ompl_state, vertex_type, level, indent);
 
     new_vertex_count++;
   }
+  ompl::tools::bolt::TaskVertex endingVertex = task_graph->getNumVertices() - 1;
   ROS_DEBUG_STREAM_NAMED(name_, "Added " << new_vertex_count << " new vertices");
+
+  // Iterate through edges
+  std::size_t new_edge_count = 0;
+  std::pair<EdgeIterator, EdgeIterator> ei = edges(pg.getGraph());
+  const ompl::tools::bolt::EdgeType edge_type = ompl::tools::bolt::eCARTESIAN;
+  for (EdgeIterator edge_iter = ei.first; edge_iter != ei.second; ++edge_iter)
+  {
+    JointGraph::vertex_descriptor jv1 = source(*edge_iter, pg.getGraph());
+    JointGraph::vertex_descriptor jv2 = target(*edge_iter, pg.getGraph());
+
+    const ompl::tools::bolt::TaskVertex v1 = descarteToBoltVertex[jv1];
+    const ompl::tools::bolt::TaskVertex v2 = descarteToBoltVertex[jv2];
+    BOOST_ASSERT_MSG(v1 > startingVertex && v1 <= endingVertex, "Attempting to create edge with out of range vertex");
+    BOOST_ASSERT_MSG(v2 > startingVertex && v2 <= endingVertex, "Attempting to create edge with out of range vertex");
+
+
+    task_graph->addEdge(v1, v2, edge_type, indent);
+
+    new_edge_count++;
+  }
+  ROS_DEBUG_STREAM_NAMED(name_, "Added " << new_edge_count << " new edges");
+
+  // Connect Descartes graph to Bolt graph
+
+
+  task_graph->printGraphStats();
 
   std::cout << "done for now " << std::endl;
   exit(0);
@@ -507,11 +558,11 @@ void CartPathPlanner::fromDescartesToMoveitTraj(const DescartesTrajectory& in_tr
     joint_point->getNominalJointPose(std::vector<double>(), *ur5_robot_model_, joints);
 
     // Create new robot state
-    moveit::core::RobotStatePtr newRobotState(new moveit::core::RobotState(*visual_tools_->getSharedRobotState()));
-    newRobotState->setJointGroupPositions(jmg_, joints);
+    moveit::core::RobotStatePtr moveit_robot_state(new moveit::core::RobotState(*visual_tools_->getSharedRobotState()));
+    moveit_robot_state->setJointGroupPositions(jmg_, joints);
 
     // Add to trajectory
-    out_traj.push_back(newRobotState);
+    out_traj.push_back(moveit_robot_state);
   }
 }
 

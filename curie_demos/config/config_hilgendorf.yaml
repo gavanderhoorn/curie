@@ -7,7 +7,8 @@ curie_demos:
   eliminate_dense_disjoint_sets: false
   check_valid_vertices: false
   preprocess_spars: false
-  create_spars: true
+  load_spars: false
+  create_spars: false
   continue_spars: false # even if a file has been saved, randomly sample for more coverage
   run_problems: true # do plans?
 
@@ -105,7 +106,7 @@ task_graph:
     verbose: true
   visualize:
     task_graph: false
-    task_graph_speed: 0.00001 # if 0, does not animate but only single image draw
+    task_graph_speed: 0.01 # if 0, does not animate but only single image draw
     database_vertices: true
     database_edges: true
     astar: false # show node expansions and openings

@@ -159,6 +159,7 @@ public:
   // Modes
   bool run_problems_;
   bool create_spars_;
+  bool load_spars_;
   bool continue_spars_;
   bool eliminate_dense_disjoint_sets_;
   bool check_valid_vertices_;

@@ -63,6 +63,7 @@ CurieDemos::CurieDemos(const std::string &hostname) : MoveItBase(), nh_("~"), re
   // run mode
   error += !rosparam_shortcuts::get(name_, rpnh, "run_problems", run_problems_);
   error += !rosparam_shortcuts::get(name_, rpnh, "create_spars", create_spars_);
+  error += !rosparam_shortcuts::get(name_, rpnh, "load_spars", load_spars_);
   error += !rosparam_shortcuts::get(name_, rpnh, "continue_spars", continue_spars_);
   error += !rosparam_shortcuts::get(name_, rpnh, "eliminate_dense_disjoint_sets", eliminate_dense_disjoint_sets_);
   error += !rosparam_shortcuts::get(name_, rpnh, "check_valid_vertices", check_valid_vertices_);
@@ -276,20 +277,25 @@ void CurieDemos::run()
   }
 
   // Load from file or generate graph
-  if (!loadData())
+  if (load_spars_)
   {
-    // Create SPARs graph
-    if (create_spars_ && is_bolt_)
+    if (!loadData())
+    {
+      // Create SPARs graph
+      if (create_spars_ && is_bolt_)
+      {
+        bolt_->getSparseCriteria()->createSPARS();
+      }
+      else
+        ROS_WARN_STREAM_NAMED(name_, "Creating sparse graph disabled, but no file loaded");
+    }
+    else if (continue_spars_)
     {
       bolt_->getSparseCriteria()->createSPARS();
     }
-    else
-      ROS_WARN_STREAM_NAMED(name_, "Creating sparse graph disabled, but no file loaded");
   }
-  else if (continue_spars_)
-  {
-    bolt_->getSparseCriteria()->createSPARS();
-  }
+  else
+    ROS_WARN_STREAM_NAMED(name_, "Creating AND loading sparse graph disabled, no contents in graph");
 
   // Display disconnected components
   if (display_disjoint_sets_ && is_bolt_)
@@ -619,9 +625,6 @@ void CurieDemos::loadVisualTools()
     // Get TF
     getTFTransform("world", "world_visual" + std::to_string(i), offset);
     moveit_visual->enableRobotStateRootOffet(offset);
-
-    // Show the initial robot state
-    moveit_visual->publishRobotState(moveit_start_);
   }
 
   viz6_->getVisualTools()->setBaseFrame("world");
@@ -634,6 +637,10 @@ void CurieDemos::loadVisualTools()
   for (std::size_t i = 1; i <= NUM_VISUALS; ++i)
   {
     vizs_[i - 1]->getVisualTools()->waitForMarkerPub();
+
+    // Show the initial robot state
+    MoveItVisualToolsPtr moveit_visual = vizs_[i - 1]->getVisualTools();
+    moveit_visual->publishRobotState(moveit_start_);
   }
 
   deleteAllMarkers();

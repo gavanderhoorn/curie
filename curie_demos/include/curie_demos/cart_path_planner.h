@@ -124,6 +124,7 @@ public:
   bool visualizeDescartesCartPath(const Eigen::Affine3d &start_pose);
 
   bool generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_graph);
+  bool convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph);
 
   void loadParameters();
   void initDescartes();
