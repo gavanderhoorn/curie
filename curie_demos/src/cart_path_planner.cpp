@@ -48,7 +48,7 @@
 
 namespace curie_demos
 {
-CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"), nh_("~"), parent_(parent)
+CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"), nh_("~"), parent_(parent)
 {
   jmg_ = parent_->jmg_;
 
@@ -80,17 +80,17 @@ CartPathPlanner::CartPathPlanner(CurieDemos *parent) : name_("cart_path_planner"
   ROS_INFO_STREAM_NAMED(name_, "CartPathPlanner Ready.");
 }
 
-void CartPathPlanner::processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback,
-                                         const Eigen::Affine3d &feedback_pose)
+void CartPathPlanner::processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback,
+                                         const Eigen::Affine3d& feedback_pose)
 {
   imarker_state_ = imarker_cartesian_->getRobotState();
   Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
 
-  //visualizeMoveItCartPath(start_pose);
+  // visualizeMoveItCartPath(start_pose);
   visualizeDescartesCartPath(start_pose);
 }
 
-bool CartPathPlanner::visualizeDescartesCartPath(const Eigen::Affine3d &start_pose)
+bool CartPathPlanner::visualizeDescartesCartPath(const Eigen::Affine3d& start_pose)
 {
   ROS_DEBUG_STREAM_NAMED(name_, "visualizeDescartesCartPath()");
 
@@ -101,7 +101,7 @@ bool CartPathPlanner::visualizeDescartesCartPath(const Eigen::Affine3d &start_po
   return true;
 }
 
-bool CartPathPlanner::computeFullDescartesTrajectory(std::vector<moveit::core::RobotStatePtr> &trajectory)
+bool CartPathPlanner::generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_graph)
 {
   imarker_state_ = imarker_cartesian_->getRobotState();
   Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
@@ -114,24 +114,65 @@ bool CartPathPlanner::computeFullDescartesTrajectory(std::vector<moveit::core::R
     return false;
   }
 
-  // Planning robot path
-  curie_demos::DescartesTrajectory descartes_traj;
-  planPath(traj, descartes_traj);
+  // Benchmark runtime
+  ros::Time start_time = ros::Time::now();
 
-  BOOST_ASSERT_MSG(!descartes_traj.empty(), "Input trajectory is empty!");
+  // planning robot path
+  bool result = planner_.insertGraph(traj);
 
-  // Running robot path
-  fromDescartesToMoveitTraj(descartes_traj, trajectory);
-
-  // Visualize
-  if (false)
+  if (result)
   {
-    ROS_INFO_STREAM_NAMED(name_, "Visualizing path");
-    const bool blocking = false;
-    double speed = 0.01;
-    visual_tools_->publishTrajectoryPath(trajectory, jmg_, speed, blocking);
-    ROS_INFO_STREAM_NAMED(name_, "Done visualizing");
+    std::cout << std::endl;
+    std::cout << "-------------------------------------------------------" << std::endl;
+    std::cout << "-------------------------------------------------------" << std::endl;
+    double duration = (ros::Time::now() - start_time).toSec();
+    ROS_INFO_STREAM_NAMED(name_, "Graph generated in " << duration << " seconds");
+    std::cout << std::endl;
   }
+  else
+  {
+    ROS_ERROR_STREAM("Could not create graph");
+    exit(-1);
+  }
+
+  // Convert graph formats from Descartes to Bolt
+  using namespace descartes_planner;
+  using namespace descartes_core;
+  using namespace descartes_trajectory;
+
+  // Iterate through vertices
+  std::size_t new_vertex_count = 0;
+  PlanningGraph& g = planner_.getPlanningGraph();
+  std::pair<VertexIterator, VertexIterator> vi = vertices(g.getGraph());
+  for (VertexIterator vert_iter = vi.first; vert_iter != vi.second; ++vert_iter)
+  {
+    JointGraph::vertex_descriptor jv = *vert_iter;
+    g.getVertexData(jv);
+
+    // Get the joint values for this vertex and convert to a MoveIt! robot state
+    TrajectoryPt::ID tajectory_id = g.getGraph()[jv].id;
+    JointMap& joint_map = g.getJointMap();
+    JointTrajectoryPt &pt = joint_map[tajectory_id];
+
+    std::vector<double> joint_pose;
+    std::vector<double> empty_seed;
+    pt.getNominalJointPose(empty_seed, *ur5_robot_model_, joint_pose);
+
+    std::cout << "joint pose: ";
+    std::copy(joint_pose.begin(), joint_pose.end(), std::ostream_iterator<double>(std::cout, ", "));
+    std::cout << std::endl;
+
+    // Convert the MoveIt! robot state into an OMPL state
+
+    // Add vertex to task graph
+    // task_graph->addVertex();
+
+    new_vertex_count++;
+  }
+  ROS_DEBUG_STREAM_NAMED(name_, "Added " << new_vertex_count << " new vertices");
+
+  std::cout << "done for now " << std::endl;
+  exit(0);
 
   return true;
 }
@@ -166,16 +207,11 @@ void CartPathPlanner::initDescartes()
     exit(-1);
   }
 
-  // Turn on collision checking.
-  ROS_WARN_STREAM_NAMED(name_, "disabled collision checking");
-  // ur5_robot_model_->setCheckCollisions(true);
+  // Set collision checking.
+  ur5_robot_model_->setCheckCollisions(check_collisions_);
+  if (!check_collisions_)
+    ROS_WARN_STREAM_NAMED(name_, "Collision checking disabled");
 
-  /*  Fill Code:
-   * Goal:
-   * - Initialize the Descartes path planner by calling "planner_.initialize(...)".
-   * - Pass the ur5_robot_model_ created earlier into the initialize method and save the result
-   *    into the "succeeded" variable.
-   */
   bool succeeded = planner_.initialize(ur5_robot_model_);
   if (succeeded)
   {
@@ -199,6 +235,7 @@ void CartPathPlanner::loadParameters()
   error += !rosparam_shortcuts::get(name_, rpnh, "tip_link", config_.tip_link);
   error += !rosparam_shortcuts::get(name_, rpnh, "base_link", config_.base_link);
   error += !rosparam_shortcuts::get(name_, rpnh, "world_frame", config_.world_frame);
+  error += !rosparam_shortcuts::get(name_, rpnh, "check_collisions", check_collisions_);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/time_delay", config_.time_delay);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/foci_distance", config_.foci_distance);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/radius", config_.radius);
@@ -209,36 +246,6 @@ void CartPathPlanner::loadParameters()
   error += !rosparam_shortcuts::get(name_, rpnh, "visualization/min_point_distance", config_.min_point_distance);
   error += !rosparam_shortcuts::get(name_, rpnh, "controller_joint_names", config_.joint_names);
   rosparam_shortcuts::shutdownIfError(name_, error);
-}
-
-void CartPathPlanner::planPath(DescartesTrajectory& input_traj, DescartesTrajectory& output_path)
-{
-  ROS_INFO_STREAM_NAMED(name_, "planPath()");
-
-  // planning robot path
-  bool succeeded = planner_.planPath(input_traj);
-
-  if (succeeded)
-  {
-    ROS_INFO_STREAM("Valid path was found");
-    std::cout << std::endl;
-    std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << std::endl;
-  }
-  else
-  {
-    ROS_ERROR_STREAM("Could not solve for a valid path");
-    exit(-1);
-  }
-
-  // retrieving robot path
-  succeeded = planner_.getPath(output_path);
-
-  if (!succeeded || output_path.empty())
-  {
-    ROS_ERROR_STREAM("Failed to retrieve robot path");
-  }
 }
 
 moveit_msgs::RobotTrajectory CartPathPlanner::runPath(const DescartesTrajectory& path)
@@ -357,8 +364,8 @@ void CartPathPlanner::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses
 }
 
 bool CartPathPlanner::createLemniscateCurve(double foci_distance, double sphere_radius, int num_points,
-                                         int num_lemniscates, const Eigen::Vector3d& sphere_center,
-                                         EigenSTL::vector_Affine3d& poses)
+                                            int num_lemniscates, const Eigen::Vector3d& sphere_center,
+                                            EigenSTL::vector_Affine3d& poses)
 {
   ROS_DEBUG_STREAM_NAMED(name_, "createLemniscateCurve()");
 
@@ -443,7 +450,7 @@ bool CartPathPlanner::createLemniscateCurve(double foci_distance, double sphere_
 }
 
 void CartPathPlanner::fromDescartesToMoveitTraj(const DescartesTrajectory& in_traj,
-                                             trajectory_msgs::JointTrajectory& out_traj)
+                                                trajectory_msgs::JointTrajectory& out_traj)
 {
   ROS_INFO_STREAM_NAMED(name_, "fromDescartesToMoveitTraj()");
 
@@ -483,7 +490,7 @@ void CartPathPlanner::fromDescartesToMoveitTraj(const DescartesTrajectory& in_tr
 }
 
 void CartPathPlanner::fromDescartesToMoveitTraj(const DescartesTrajectory& in_traj,
-                                             std::vector<moveit::core::RobotStatePtr>& out_traj)
+                                                std::vector<moveit::core::RobotStatePtr>& out_traj)
 {
   ROS_INFO_STREAM_NAMED(name_, "fromDescartesToMoveitTraj()");
 
@@ -535,7 +542,7 @@ bool CartPathPlanner::generateCartTrajectory(DescartesTrajectory& traj, const Ei
 
   // TODO(davetcoleman): remove
   // Remove most of trajectory just to save time
-  std::size_t use_first_count = 50;  // only save the front of the vector
+  std::size_t use_first_count = 5;  // only save the front of the vector
   ROS_DEBUG_STREAM_NAMED(name_, "Truncating trajectory to size " << use_first_count
                                                                  << " reduce computation time during "
                                                                     "testing");

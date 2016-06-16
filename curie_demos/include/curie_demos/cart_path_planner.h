@@ -56,6 +56,9 @@
 // Eigen
 #include <eigen_conversions/eigen_msg.h>
 
+// OMPL
+#include <ompl/tools/bolt/TaskGraph.h>
+
 // this package
 #include <curie_demos/imarker_robot_state.h>
 
@@ -120,12 +123,7 @@ public:
 
   bool visualizeDescartesCartPath(const Eigen::Affine3d &start_pose);
 
-  /**
-   * \brief Get the cartesian trajectory
-   * \param trajectory to populate
-   * \return true on success
-   */
-  bool computeFullDescartesTrajectory(std::vector<moveit::core::RobotStatePtr>& trajectory);
+  bool generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_graph);
 
   void loadParameters();
   void initDescartes();
@@ -178,6 +176,8 @@ private:
   //descartes_planner::SparsePlanner planner_;
   descartes_planner::DensePlanner planner_;
 
+  // User settings
+  bool check_collisions_;
 };  // end class
 
 // Create boost pointers for this class

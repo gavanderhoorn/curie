@@ -271,6 +271,8 @@ void CurieDemos::run()
   if (benchmark_performance_ && is_bolt_)
   {
     bolt_->benchmarkPerformance();
+    ROS_INFO_STREAM_NAMED(name_, "Finished benchmarking");
+    exit(0);
   }
 
   // Load from file or generate graph
@@ -340,8 +342,7 @@ bool CurieDemos::runProblems()
   // Run the demo the desired number of times
   for (std::size_t run_id = 0; run_id < planning_runs_; ++run_id)
   {
-    // Check if user wants to shutdown
-    if (!ros::ok())
+    if (!ros::ok()) // Check if user wants to shutdown
       break;
 
     std::cout << std::endl;
@@ -389,6 +390,9 @@ bool CurieDemos::runProblems()
       waitForNextStep("run next problem");
     else  // Main pause between planning instances - allows user to analyze
       ros::Duration(visualize_time_between_plans_).sleep();
+
+    if (!ros::ok()) // Check if user wants to shutdown
+      break;
 
     // Reset marker if this is not our last run
     if (run_id < planning_runs_ - 1)
@@ -726,35 +730,32 @@ void CurieDemos::visualizeRawTrajectory(og::PathGeometric &path)
 bool CurieDemos::generateRandCartesianPath()
 {
   // Get MoveIt path
-  std::vector<moveit::core::RobotStatePtr> trajectory;
-  if (!cart_path_planner_->computeFullDescartesTrajectory(trajectory))
+  if (!cart_path_planner_->generateCartGraph(bolt_->getTaskGraph()))
   {
     ROS_ERROR_STREAM_NAMED(name_, "Unable to get computed cartesian trajectory");
     return false;;
   }
 
-  std::cout << "trajectory: " << trajectory.size() << std::endl;
-
   // Convert to OMPL path
-  std::vector<ompl::base::State *> ompl_path;
-  for (std::size_t i = 0; i < trajectory.size(); ++i)
-  {
-    ob::State *state = space_->allocState();
-    space_->copyToOMPLState(state, *trajectory[i]);
-    const std::size_t level = 1;
-    space_->setLevel(state, level);
+  // std::vector<ompl::base::State *> ompl_path;
+  // for (std::size_t i = 0; i < trajectory.size(); ++i)
+  // {
+  //   ob::State *state = space_->allocState();
+  //   space_->copyToOMPLState(state, *trajectory[i]);
+  //   const std::size_t level = 1;
+  //   space_->setLevel(state, level);
 
-    ompl_path.push_back(state);
-  }
+  //   ompl_path.push_back(state);
+  // }
 
-  // Insert into graph
-  std::cout << "adding path --------------------- " << std::endl;
-  std::size_t indent = 0;
-  if (!bolt_->getTaskGraph()->addCartPath(ompl_path, indent))
-  {
-    ROS_ERROR_STREAM_NAMED(name_, "Unable to add cartesian path");
-    return false;
-  }
+  // // Insert into graph
+  // std::cout << "adding path --------------------- " << std::endl;
+  // std::size_t indent = 0;
+  // if (!bolt_->getTaskGraph()->addCartPath(ompl_path, indent))
+  // {
+  //   ROS_ERROR_STREAM_NAMED(name_, "Unable to add cartesian path");
+  //   return false;
+  // }
   return true;
 }
 

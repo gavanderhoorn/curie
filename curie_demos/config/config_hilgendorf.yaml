@@ -134,11 +134,12 @@ bolt:
 arm_prefix: right_
 
 # ====================================================
-ur5_descartes:
+cart_path_planner:
   group_name: right_arm
   tip_link: right_gripper_target
   base_link: base_link
   world_frame: base_link # TODO it bothers me this is required
+  check_collisions: false
   trajectory:
     time_delay: 0.1
     foci_distance: 0.07
