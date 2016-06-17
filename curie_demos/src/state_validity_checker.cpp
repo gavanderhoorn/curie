@@ -99,8 +99,15 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
 
   // check collision avoidance
   collision_detection::CollisionResult res;
-  planning_scene_->checkCollision(verbose ? collision_request_simple_verbose_ : collision_request_simple_, res,
-                                  *robot_state);
+  if (verbose)
+  {
+    planning_scene_->checkCollision(collision_request_simple_verbose_, res, *robot_state);
+  }
+  else
+  {
+    planning_scene_->checkCollision(collision_request_simple_, res, *robot_state);
+  }
+
   return res.collision == false;
 }
 

@@ -45,6 +45,9 @@
 // this package
 #include <curie_demos/curie_demos.h>
 
+// Profiling
+#include <valgrind/callgrind.h>
+
 namespace ob = ompl::base;
 namespace ot = ompl::tools;
 namespace otb = ompl::tools::bolt;
@@ -53,9 +56,12 @@ namespace rvt = rviz_visual_tools;
 
 namespace curie_demos
 {
-CurieDemos::CurieDemos(const std::string &hostname) : MoveItBase(), nh_("~"), remote_control_(nh_)
-
+CurieDemos::CurieDemos(const std::string &hostname, const std::string& package_path)
+  : MoveItBase(), nh_("~"), remote_control_(nh_), package_path_(package_path)
 {
+  // Profiler
+  CALLGRIND_TOGGLE_COLLECT;
+
   bool seed_random;
   // Load rosparams
   ros::NodeHandle rpnh(nh_, name_);
@@ -145,8 +151,8 @@ CurieDemos::CurieDemos(const std::string &hostname) : MoveItBase(), nh_("~"), re
     // Create cartesian planner
     cart_path_planner_.reset(new CartPathPlanner(this));
 
-    imarker_start_.reset(new IMarkerRobotState(planning_scene_monitor_, "start", jmg_, ee_link_, rvt::GREEN));
-    imarker_goal_.reset(new IMarkerRobotState(planning_scene_monitor_, "goal", jmg_, ee_link_, rvt::ORANGE));
+    imarker_start_.reset(new IMarkerRobotState(planning_scene_monitor_, "start", jmg_, ee_link_, rvt::GREEN, package_path_));
+    imarker_goal_.reset(new IMarkerRobotState(planning_scene_monitor_, "goal", jmg_, ee_link_, rvt::ORANGE, package_path_));
   }
 
   // Wait until user does something
@@ -162,6 +168,10 @@ CurieDemos::CurieDemos(const std::string &hostname) : MoveItBase(), nh_("~"), re
 
   // Run application
   run();
+
+  // Profiler
+  CALLGRIND_TOGGLE_COLLECT;
+  CALLGRIND_DUMP_STATS;
 }
 
 CurieDemos::~CurieDemos()
@@ -447,7 +457,7 @@ bool CurieDemos::plan()
   // Optionally create cartesian path
   if (use_task_planning_)
   {
-    if (!generateRandCartesianPath())
+    if (!generateCartGraph())
     {
       ROS_ERROR_STREAM_NAMED(name_, "Unable to create cart path");
       exit(-1);
@@ -734,35 +744,22 @@ void CurieDemos::visualizeRawTrajectory(og::PathGeometric &path)
   viz3_->trigger();
 }
 
-bool CurieDemos::generateRandCartesianPath()
+bool CurieDemos::generateCartGraph()
 {
-  // Get MoveIt path
-  if (!cart_path_planner_->generateCartGraph(bolt_->getTaskGraph()))
+  // Generate the Descartes graph
+  if (!cart_path_planner_->generateCartGraph())
   {
-    ROS_ERROR_STREAM_NAMED(name_, "Unable to get computed cartesian trajectory");
+    ROS_ERROR_STREAM_NAMED(name_, "Unable to populate Descartes graph");
     return false;;
   }
 
-  // Convert to OMPL path
-  // std::vector<ompl::base::State *> ompl_path;
-  // for (std::size_t i = 0; i < trajectory.size(); ++i)
-  // {
-  //   ob::State *state = space_->allocState();
-  //   space_->copyToOMPLState(state, *trajectory[i]);
-  //   const std::size_t level = 1;
-  //   space_->setLevel(state, level);
+  // Convert the Descartes graph into a Bolt TaskGraph
+  if (!cart_path_planner_->convertDescartesGraphToBolt(bolt_->getTaskGraph()))
+  {
+    ROS_ERROR_STREAM_NAMED(name_, "Unable to convert Descartes graph to Bolt TaskGraph");
+    return false;;
+  }
 
-  //   ompl_path.push_back(state);
-  // }
-
-  // // Insert into graph
-  // std::cout << "adding path --------------------- " << std::endl;
-  // std::size_t indent = 0;
-  // if (!bolt_->getTaskGraph()->addCartPath(ompl_path, indent))
-  // {
-  //   ROS_ERROR_STREAM_NAMED(name_, "Unable to add cartesian path");
-  //   return false;
-  // }
   return true;
 }
 

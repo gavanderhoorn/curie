@@ -7,7 +7,7 @@ curie_demos:
   eliminate_dense_disjoint_sets: false
   check_valid_vertices: false
   preprocess_spars: false
-  load_spars: false
+  load_spars: true
   create_spars: false
   continue_spars: false # even if a file has been saved, randomly sample for more coverage
   run_problems: true # do plans?
@@ -99,14 +99,18 @@ vertex_discretizer:
 
 # ====================================================
 task_graph:
+  num_neighbors_connect_to_cart: 10
   verbose:
     add: false # debug when addVertex() and addEdge() are called
     search: true
     visualize: true
     verbose: true
+    heuristic: false
+    clear: false
+    generate_task: false
   visualize:
     task_graph: false
-    task_graph_speed: 0.01 # if 0, does not animate but only single image draw
+    task_graph_speed: 0.001 # if 0, does not animate but only single image draw
     database_vertices: true
     database_edges: true
     astar: false # show node expansions and openings
@@ -140,7 +144,7 @@ cart_path_planner:
   tip_link: right_gripper_target
   base_link: base_link
   world_frame: base_link # TODO it bothers me this is required
-  check_collisions: false
+  check_collisions: true
   trajectory:
     time_delay: 0.1
     foci_distance: 0.07

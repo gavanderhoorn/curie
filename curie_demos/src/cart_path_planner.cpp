@@ -57,7 +57,7 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
 
   // Create cartesian start pose interactive marker
   imarker_cartesian_.reset(
-      new IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_, rvt::BLUE));
+                           new IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_, rvt::BLUE, parent_->package_path_));
   imarker_cartesian_->setIMarkerCallback(
       std::bind(&CartPathPlanner::processIMarkerPose, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -101,7 +101,7 @@ bool CartPathPlanner::visualizeDescartesCartPath(const Eigen::Affine3d& start_po
   return true;
 }
 
-bool CartPathPlanner::generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_graph)
+bool CartPathPlanner::generateCartGraph()
 {
   imarker_state_ = imarker_cartesian_->getRobotState();
   Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
@@ -136,7 +136,7 @@ bool CartPathPlanner::generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_gra
     exit(-1);
   }
 
-  return convertDescartesGraphToBolt(task_graph);
+  return true;
 }
 
 bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph)
@@ -147,6 +147,9 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   using namespace descartes_planner;
   using namespace descartes_core;
   using namespace descartes_trajectory;
+
+  // Remove any previous Cartesian vertices/edges
+  task_graph->clearCartesianVertices(indent);
 
   // For converting to MoveIt! format
   moveit::core::RobotStatePtr moveit_robot_state(new moveit::core::RobotState(*visual_tools_->getSharedRobotState()));
@@ -162,9 +165,6 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   const ompl::tools::bolt::VertexLevel level = 1;  // middle layer
   const PlanningGraph& pg = planner_.getPlanningGraph();
 
-  // force visualization
-  //task_graph->visualizeTaskGraph_ = true;
-
   // Iterate through vertices
   std::pair<VertexIterator, VertexIterator> vi = vertices(pg.getGraph());
   for (VertexIterator vert_iter = vi.first; vert_iter != vi.second; ++vert_iter)
@@ -174,10 +174,17 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
     // Get the joint values for this vertex and convert to a MoveIt! robot state
     TrajectoryPt::ID tajectory_id = pg.getGraph()[jv].id;
     const JointMap& joint_map = pg.getJointMap();
-    const JointTrajectoryPt& pt = joint_map.at(tajectory_id);
-
     std::vector<double> joints_pose;
-    pt.getNominalJointPose(empty_seed, *ur5_robot_model_, joints_pose);
+    try
+    {
+      const JointTrajectoryPt& pt = joint_map.at(tajectory_id);
+      pt.getNominalJointPose(empty_seed, *ur5_robot_model_, joints_pose);
+    }
+    catch (std::out_of_range)
+    {
+      ROS_WARN_STREAM_NAMED(name_, "Unable to find JointTrajectoryPtr in JointMap");
+      return false;
+    }
 
     // Copy vector into moveit format
     moveit_robot_state->setJointGroupPositions(jmg_, joints_pose);
@@ -205,8 +212,8 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
     JointGraph::vertex_descriptor jv1 = source(*edge_iter, pg.getGraph());
     JointGraph::vertex_descriptor jv2 = target(*edge_iter, pg.getGraph());
 
-    const ompl::tools::bolt::TaskVertex v1 = descarteToBoltVertex[jv1];
-    const ompl::tools::bolt::TaskVertex v2 = descarteToBoltVertex[jv2];
+    const ompl::tools::bolt::TaskVertex v1 = descarteToBoltVertex.at(jv1);
+    const ompl::tools::bolt::TaskVertex v2 = descarteToBoltVertex.at(jv2);
     BOOST_ASSERT_MSG(v1 > startingVertex && v1 <= endingVertex, "Attempting to create edge with out of range vertex");
     BOOST_ASSERT_MSG(v2 > startingVertex && v2 <= endingVertex, "Attempting to create edge with out of range vertex");
 
@@ -219,6 +226,77 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
 
   // Connect Descartes graph to Bolt graph
 
+  // Enumerate the start & end vertice descriptors
+  std::vector<JointGraph::vertex_descriptor> start_points;
+  pg.findStartVertices(start_points);
+  std::vector<JointGraph::vertex_descriptor> goal_points;
+  pg.findEndVertices(goal_points);
+
+  // Track the shortest straight-line cost across any pair of start/goal points
+  double shortest_path_across_cart = std::numeric_limits<double>::infinity();
+
+  // Loop through all start points
+  ROS_INFO_STREAM_NAMED(name_, "Connecting Descartes start points to TaskGraph");
+  for (JointGraph::vertex_descriptor& jv : start_points)
+  {
+    // Get the corresponding BoltGraph vertex
+    const ompl::tools::bolt::TaskVertex start_vertex = descarteToBoltVertex.at(jv);
+
+    // Connect to TaskGraph
+    const ompl::tools::bolt::VertexLevel level0 = 0;
+    bool isStart = true;
+    if (!task_graph->connectVertexToNeighborsAtLevel(start_vertex, level0, isStart, indent))
+    {
+      OMPL_WARN("Failed to connect Descartes start vertex %u", jv);
+    }
+
+    // Calculate the shortest straight-line distance across Descartes graph
+    // Record min cost for cost-to-go heurstic distance function later
+    // Check if this start vertex has has the shortest path across the Cartesian graph
+    for (JointGraph::vertex_descriptor& goal_v : goal_points)
+    {
+      // Get the corresponding BoltGraph vertex
+      const ompl::tools::bolt::TaskVertex goal_vertex = descarteToBoltVertex.at(goal_v);
+
+      // distanceAcrossCartPath_ = distanceFunction(start_vertex, goal_vertex);
+      double distance_across_graph = task_graph->distanceFunction(start_vertex, goal_vertex);
+
+      if (distance_across_graph < shortest_path_across_cart)
+      {
+        shortest_path_across_cart = distance_across_graph;
+        ROS_INFO_STREAM_NAMED(name_, "Found new shortest path: " << shortest_path_across_cart);
+      }
+    }
+
+    if (!ros::ok())
+      exit(-1);
+  }
+
+  // force visualization
+  //task_graph->visualizeTaskGraph_ = true;
+
+  // Loop through all goal points
+  ROS_INFO_STREAM_NAMED(name_, "Connecting Descartes end points to TaskGraph");
+  for (JointGraph::vertex_descriptor& jv : goal_points)
+  {
+    // Get the corresponding BoltGraph vertex
+    const ompl::tools::bolt::TaskVertex goal_vertex = descarteToBoltVertex.at(jv);
+
+    // Connect to TaskGraph
+    const ompl::tools::bolt::VertexLevel level2 = 2;
+    bool isStart = false;
+    if (!task_graph->connectVertexToNeighborsAtLevel(goal_vertex, level2, isStart, indent))
+    {
+      OMPL_WARN("Failed to connect Descartes goal vertex %u", jv);
+    }
+
+    if (!ros::ok())
+      exit(-1);
+  }
+  ROS_INFO_STREAM_NAMED(name_, "Finished connecting Descartes end points to TaskGraph");
+
+  // Set the shortest path across cartesian graph in the TaskGraph
+  task_graph->setShortestDistAcrossCart(shortest_path_across_cart);
 
   task_graph->printGraphStats();
 
@@ -236,19 +314,11 @@ void CartPathPlanner::initDescartes()
   const std::string prefix = "right_";
   ur5_robot_model_.reset(new ur5_demo_descartes::UR5RobotModel(prefix));
 
-  /*  Fill Code:
-   * Goal:
-   * - Initialize the "robot_model_ptr" variable by passing the required application parameters
-   *    into its "initialize" method.
-   * Hint:
-   * - The config_ structure contains the variables needed by the robot model
-   * - The "initialize" method takes the following arguments in this order
-   *    a - robot description string
-   *    b - group_name string.
-   *    c - world_frame string
-   *    d - tip_link string.
-   */
-  if (ur5_robot_model_->initialize(ROBOT_DESCRIPTION_PARAM, config_.group_name, config_.world_frame, config_.tip_link))
+
+  //ur5_demo_descartes::UR5RobotModel ur5_robot_model_;
+
+  // Initialize
+  if (ur5_robot_model_->initialize(visual_tools_->getSharedRobotState()->getRobotModel(), config_.group_name, config_.world_frame, config_.tip_link))
   {
     ROS_INFO_STREAM("Descartes Robot Model initialized");
   }

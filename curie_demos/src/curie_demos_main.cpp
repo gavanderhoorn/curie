@@ -66,8 +66,10 @@ int main(int argc, char **argv)
   //   setenv("HOME", "/home/dave", 1);
   // }
 
+  const std::string package_path = ros::package::getPath("curie_demos");
+
   // Initialize main class
-  curie_demos::CurieDemos demo(hostname);
+  curie_demos::CurieDemos demo(hostname, package_path);
 
   // Shutdown
   ROS_INFO_STREAM_NAMED("main", "Shutting down.");

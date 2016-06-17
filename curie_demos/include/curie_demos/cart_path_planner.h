@@ -123,7 +123,7 @@ public:
 
   bool visualizeDescartesCartPath(const Eigen::Affine3d &start_pose);
 
-  bool generateCartGraph(ompl::tools::bolt::TaskGraphPtr task_graph);
+  bool generateCartGraph();
   bool convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph);
 
   void loadParameters();
@@ -171,7 +171,8 @@ private:
   moveit::core::JointModelGroup* jmg_;
 
   // Performs tasks specific to the Robot such IK, FK and collision detection*/
-  descartes_core::RobotModelPtr ur5_robot_model_;
+  //  descartes_core::RobotModelPtr ur5_robot_model_;
+  ur5_demo_descartes::UR5RobotModelPtr ur5_robot_model_;
 
   // Plans a smooth robot path given a trajectory of points
   //descartes_planner::SparsePlanner planner_;

@@ -71,7 +71,7 @@ class CurieDemos : public curie_demos::MoveItBase
 {
 public:
   /** \brief Constructor */
-  CurieDemos(const std::string& hostname);
+  CurieDemos(const std::string& hostname, const std::string& package_path);
 
   /** \brief Destructor */
   ~CurieDemos();
@@ -93,7 +93,7 @@ public:
   bool plan();
 
   /** \brief Create multiple dummy cartesian paths */
-  bool generateRandCartesianPath();
+  bool generateCartGraph();
 
   bool checkOMPLPathSolution(og::PathGeometric& path);
   bool checkMoveItPathSolution(robot_trajectory::RobotTrajectoryPtr traj);
@@ -125,6 +125,9 @@ public:
 
   // Recieve input from Rviz
   moveit_ompl::RemoteControl remote_control_;
+
+  // File location of this package
+  std::string package_path_;
 
   // Save the experience setup until the program ends so that the planner data is not lost
   ompl::tools::ExperienceSetupPtr experience_setup_;

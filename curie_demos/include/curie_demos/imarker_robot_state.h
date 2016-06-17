@@ -66,7 +66,7 @@ public:
    * \brief Constructor
    */
   IMarkerRobotState(psm::PlanningSceneMonitorPtr planning_scene_monitor, const std::string &imarker_name,
-                    const moveit::core::JointModelGroup *jmg, moveit::core::LinkModel *ee_link, rvt::colors color);
+                    const moveit::core::JointModelGroup *jmg, moveit::core::LinkModel *ee_link, rvt::colors color, const std::string& package_path);
 
   /** \brief Set where in the parent class the feedback should be sent */
   void setIMarkerCallback(IMarkerCallback callback);
@@ -128,6 +128,9 @@ private:
   const moveit::core::JointModelGroup *jmg_;
   moveit::core::LinkModel *ee_link_;
   rvt::colors color_ = rvt::PURPLE;
+
+  // File location of this package
+  std::string package_path_;
 
   // File saving
   std::string file_path_;

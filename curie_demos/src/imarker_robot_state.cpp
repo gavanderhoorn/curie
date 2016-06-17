@@ -53,13 +53,14 @@ namespace curie_demos
 {
 IMarkerRobotState::IMarkerRobotState(psm::PlanningSceneMonitorPtr planning_scene_monitor,
                                      const std::string &imarker_name, const moveit::core::JointModelGroup *jmg,
-                                     moveit::core::LinkModel *ee_link, rvt::colors color)
+                                     moveit::core::LinkModel *ee_link, rvt::colors color, const std::string& package_path)
   : name_(imarker_name)
   , nh_("~")
   , planning_scene_monitor_(planning_scene_monitor)
   , jmg_(jmg)
   , ee_link_(ee_link)
   , color_(color)
+  , package_path_(package_path)
 {
   imarker_topic_ = nh_.getNamespace() + "/" + imarker_name + "_imarker";
 
@@ -366,16 +367,8 @@ bool IMarkerRobotState::getFilePath(std::string &file_path, const std::string &f
 {
   namespace fs = boost::filesystem;
 
-  // Get this package's path
-  const std::string package_path = ros::package::getPath("curie_demos");
-  if (package_path.empty())
-  {
-    ROS_WARN("Unable to find this package's path");
-    return false;
-  }
-
   // Check that the directory exists, if not, create it
-  fs::path rootPath = fs::path(package_path);
+  fs::path rootPath = fs::path(package_path_);
   rootPath = rootPath / fs::path(subdirectory);
 
   boost::system::error_code returnedError;
