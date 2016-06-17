@@ -127,7 +127,7 @@ bool CartPathPlanner::generateCartGraph()
     std::cout << "-------------------------------------------------------" << std::endl;
     std::cout << "-------------------------------------------------------" << std::endl;
     double duration = (ros::Time::now() - start_time).toSec();
-    ROS_INFO_STREAM_NAMED(name_, "Graph generated in " << duration << " seconds");
+    ROS_INFO_STREAM_NAMED(name_, "Descartes graph generated in " << duration << " seconds");
     std::cout << std::endl;
   }
   else
@@ -258,7 +258,6 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
       // Get the corresponding BoltGraph vertex
       const ompl::tools::bolt::TaskVertex goal_vertex = descarteToBoltVertex.at(goal_v);
 
-      // distanceAcrossCartPath_ = distanceFunction(start_vertex, goal_vertex);
       double distance_across_graph = task_graph->distanceFunction(start_vertex, goal_vertex);
 
       if (distance_across_graph < shortest_path_across_cart)
@@ -298,10 +297,10 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   // Set the shortest path across cartesian graph in the TaskGraph
   task_graph->setShortestDistAcrossCart(shortest_path_across_cart);
 
-  task_graph->printGraphStats();
+  // Tell the planner to require task planning
+  task_graph->setTaskPlanningEnabled();
 
-  std::cout << "done for now " << std::endl;
-  exit(0);
+  task_graph->printGraphStats();
 
   return true;
 }
