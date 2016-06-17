@@ -148,10 +148,11 @@ bool IMarkerRobotState::loadFromFile(const std::string &file_name)
   return true;
 }
 
-bool IMarkerRobotState::saveToFile(const std::string &file_name)
+bool IMarkerRobotState::saveToFile()
 {
-  std::ofstream output_file(file_name);
-  moveit::core::robotStateToStream(*imarker_state_, output_file, false);
+  output_file_.open(file_path_);
+  moveit::core::robotStateToStream(*imarker_state_, output_file_, false);
+  output_file_.close();
 
   return true;
 }
@@ -227,9 +228,10 @@ void IMarkerRobotState::solveIK(Eigen::Affine3d &pose)
     visual_tools_->publishRobotState(imarker_state_, color_);
 
     // Save pose to file if its been long enough
-    if (time_since_last_save_ < ros::Time::now() - ros::Duration(1.0))
+    double save_every_sec = 0.1;
+    if (time_since_last_save_ < ros::Time::now() - ros::Duration(save_every_sec))
     {
-      saveToFile(file_path_);
+      saveToFile();
       time_since_last_save_ = ros::Time::now();
     }
   }

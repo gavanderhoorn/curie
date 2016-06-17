@@ -68,6 +68,11 @@ public:
   IMarkerRobotState(psm::PlanningSceneMonitorPtr planning_scene_monitor, const std::string &imarker_name,
                     const moveit::core::JointModelGroup *jmg, moveit::core::LinkModel *ee_link, rvt::colors color, const std::string& package_path);
 
+  ~IMarkerRobotState()
+  {
+    output_file_.close();
+  }
+
   /** \brief Set where in the parent class the feedback should be sent */
   void setIMarkerCallback(IMarkerCallback callback);
 
@@ -77,7 +82,7 @@ public:
 
   bool loadFromFile(const std::string &file_name);
 
-  bool saveToFile(const std::string &file_name);
+  bool saveToFile();
 
   bool setPoseFromRobotState();
 
@@ -149,6 +154,11 @@ private:
 
   // Amount to move interactive marker from tip link of kinematic chain
   Eigen::Affine3d imarker_offset_ = Eigen::Affine3d::Identity();
+
+  double total_duration_ = 0;
+  std::size_t total_saves_ = 0;
+
+  std::ofstream output_file_;
 
 };  // end class
 

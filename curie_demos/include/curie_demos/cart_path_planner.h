@@ -64,17 +64,11 @@
 
 namespace curie_demos
 {
-const std::string ROBOT_DESCRIPTION_PARAM = "robot_description";
-const std::string EXECUTE_TRAJECTORY_SERVICE = "execute_kinematic_path";
-const std::string VISUALIZE_TRAJECTORY_TOPIC = "visualize_trajectory_curve";
 const double SERVICE_TIMEOUT = 5.0f;  // seconds
-const double ORIENTATION_INCREMENT = 0.5f;
 const double EPSILON = 0.0001f;
 const double AXIS_LINE_LENGTH = 0.01;
 const double AXIS_LINE_WIDTH = 0.001;
 const double LINE_WIDTH = 0.005;
-const std::string PLANNER_ID = "RRTConnectkConfigDefault";
-const std::string HOME_POSITION_NAME = "home";
 
 typedef std::vector<descartes_core::TrajectoryPtPtr> DescartesTrajectory;
 
@@ -158,9 +152,6 @@ private:
   // Rviz
   moveit_visual_tools::MoveItVisualToolsPtr visual_tools_;
 
-  // Trajetory
-  //std::vector<moveit::core::RobotStatePtr> trajectory_;
-
   // Interactive markers
   IMarkerRobotStatePtr imarker_cartesian_;
 
@@ -168,10 +159,9 @@ private:
   DemoConfiguration config_;
 
   // The planning group to work on
-  moveit::core::JointModelGroup* jmg_;
+  const moveit::core::JointModelGroup* jmg_;
 
   // Performs tasks specific to the Robot such IK, FK and collision detection*/
-  //  descartes_core::RobotModelPtr ur5_robot_model_;
   ur5_demo_descartes::UR5RobotModelPtr ur5_robot_model_;
 
   // Plans a smooth robot path given a trajectory of points
@@ -180,6 +170,9 @@ private:
 
   // User settings
   bool check_collisions_;
+
+  double orientation_increment_ = 0.5;
+
 };  // end class
 
 // Create boost pointers for this class

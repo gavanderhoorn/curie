@@ -355,6 +355,10 @@ bool CurieDemos::runProblems()
     moveit_ompl::getFilePath(file_path, "bolt_2d_world_logging.csv", "ros/ompl_storage");
     logging_file.open(file_path.c_str(), std::ios::out);  // no append | std::ios::app);
   }
+
+  if (visualize_wait_between_plans_) // Wait for first
+    waitForNextStep("run first problem");
+
   // Run the demo the desired number of times
   for (std::size_t run_id = 0; run_id < planning_runs_; ++run_id)
   {
@@ -381,6 +385,16 @@ bool CurieDemos::runProblems()
     // Visualize
     if (visualize_start_goal_states_)
       visualizeStartGoal();
+
+    // Optionally create cartesian path, if this is a task plan
+    if (use_task_planning_)
+    {
+      if (!generateCartGraph())
+      {
+        ROS_ERROR_STREAM_NAMED(name_, "Unable to create cart path");
+        exit(-1);
+      }
+    }
 
     // Do one plan
     plan();
@@ -451,18 +465,6 @@ bool CurieDemos::plan()
 
   // Set the start and goal states
   experience_setup_->setStartAndGoalStates(ompl_start_, ompl_goal_);
-
-  // Cartesian -----------------------------------------------------------
-
-  // Optionally create cartesian path
-  if (use_task_planning_)
-  {
-    if (!generateCartGraph())
-    {
-      ROS_ERROR_STREAM_NAMED(name_, "Unable to create cart path");
-      exit(-1);
-    }
-  }
 
   // Solve -----------------------------------------------------------
 
@@ -746,11 +748,16 @@ void CurieDemos::visualizeRawTrajectory(og::PathGeometric &path)
 
 bool CurieDemos::generateCartGraph()
 {
-  // Generate the Descartes graph
-  if (!cart_path_planner_->generateCartGraph())
+  // Generate the Descartes graph - if it fails let user adjust interactive marker
+  while (true)
   {
-    ROS_ERROR_STREAM_NAMED(name_, "Unable to populate Descartes graph");
-    return false;;
+    if (!cart_path_planner_->generateCartGraph())
+    {
+      ROS_WARN_STREAM_NAMED(name_, "Unable to populate Descartes graph - try moving the start location");
+      ros::Duration(1.0).sleep();
+    }
+    else
+      break;
   }
 
   // Convert the Descartes graph into a Bolt TaskGraph

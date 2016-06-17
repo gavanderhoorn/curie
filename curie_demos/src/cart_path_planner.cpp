@@ -110,25 +110,24 @@ bool CartPathPlanner::generateCartGraph()
   curie_demos::DescartesTrajectory traj;
   if (!generateCartTrajectory(traj, start_pose))
   {
-    ROS_ERROR_STREAM_NAMED(name_, "Failed to generate full cart trajectory");
+    ROS_ERROR_STREAM_NAMED(name_, "Failed to generate full cart trajectory at current position");
     return false;
   }
 
   // Benchmark runtime
   ros::Time start_time = ros::Time::now();
 
-  // planning robot path
-  std::cout << std::setprecision(4);
+  const descartes_planner::PlanningGraph& pg = planner_.getPlanningGraph();
+
+  // ------------------------------------------------------------------
+  // Create the Descartes planning graph
   bool result = planner_.insertGraph(traj);
+  // ------------------------------------------------------------------
 
   if (result)
   {
-    std::cout << std::endl;
-    std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << "-------------------------------------------------------" << std::endl;
     double duration = (ros::Time::now() - start_time).toSec();
-    ROS_INFO_STREAM_NAMED(name_, "Descartes graph generated in " << duration << " seconds");
-    std::cout << std::endl;
+    ROS_INFO_STREAM_NAMED(name_, "Descartes graph generated in " << duration << " seconds with " << boost::num_vertices(pg.getGraph()) << " vertices");
   }
   else
   {
@@ -235,6 +234,9 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   // Track the shortest straight-line cost across any pair of start/goal points
   double shortest_path_across_cart = std::numeric_limits<double>::infinity();
 
+  // force visualization
+  //task_graph->visualizeTaskGraph_ = true;
+
   // Loop through all start points
   ROS_INFO_STREAM_NAMED(name_, "Connecting Descartes start points to TaskGraph");
   for (JointGraph::vertex_descriptor& jv : start_points)
@@ -263,16 +265,12 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
       if (distance_across_graph < shortest_path_across_cart)
       {
         shortest_path_across_cart = distance_across_graph;
-        ROS_INFO_STREAM_NAMED(name_, "Found new shortest path: " << shortest_path_across_cart);
       }
     }
 
     if (!ros::ok())
       exit(-1);
   }
-
-  // force visualization
-  //task_graph->visualizeTaskGraph_ = true;
 
   // Loop through all goal points
   ROS_INFO_STREAM_NAMED(name_, "Connecting Descartes end points to TaskGraph");
@@ -356,6 +354,7 @@ void CartPathPlanner::loadParameters()
   error += !rosparam_shortcuts::get(name_, rpnh, "base_link", config_.base_link);
   error += !rosparam_shortcuts::get(name_, rpnh, "world_frame", config_.world_frame);
   error += !rosparam_shortcuts::get(name_, rpnh, "check_collisions", check_collisions_);
+  error += !rosparam_shortcuts::get(name_, rpnh, "orientation_increment", orientation_increment_);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/time_delay", config_.time_delay);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/foci_distance", config_.foci_distance);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/radius", config_.radius);
@@ -652,21 +651,24 @@ bool CartPathPlanner::generateCartTrajectory(DescartesTrajectory& traj, const Ei
   if (createLemniscateCurve(config_.foci_distance, config_.radius, config_.num_points, config_.num_lemniscates,
                             sphere_center, poses))
   {
-    ROS_DEBUG_STREAM("Trajectory with " << poses.size() << " points was generated");
+    ROS_DEBUG_STREAM_NAMED(name_, "Trajectory with " << poses.size() << " points was generated");
   }
   else
   {
-    ROS_ERROR_STREAM("Trajectory generation failed");
+    ROS_ERROR_STREAM_NAMED(name_, "Trajectory generation failed");
     exit(-1);
   }
 
   // TODO(davetcoleman): remove
-  // Remove most of trajectory just to save time
-  std::size_t use_first_count = 5;  // only save the front of the vector
-  ROS_DEBUG_STREAM_NAMED(name_, "Truncating trajectory to size " << use_first_count
-                                                                 << " reduce computation time during "
-                                                                    "testing");
-  poses.erase(poses.begin() + use_first_count, poses.end());
+  if (false)
+  {
+    // Remove most of trajectory just to save time
+    std::size_t use_first_count = 50;  // only save the front of the vector
+    ROS_DEBUG_STREAM_NAMED(name_, "Truncating trajectory to size " << use_first_count
+                           << " reduce computation time during "
+                           "testing");
+    poses.erase(poses.begin() + use_first_count, poses.end());
+  }
 
   // publishing trajectory poses for visualization
   publishPosesMarkers(poses);
@@ -678,6 +680,7 @@ bool CartPathPlanner::generateCartTrajectory(DescartesTrajectory& traj, const Ei
   {
     const Eigen::Affine3d& pose = poses[i];
 
+    /*
     // Get all possible solutions
     std::vector<std::vector<double> > joint_poses;
     if (!ur5_robot_model_->getAllIK(pose, joint_poses))
@@ -707,20 +710,21 @@ bool CartPathPlanner::generateCartTrajectory(DescartesTrajectory& traj, const Ei
         break;  // do not show all possible configs
       }
     }
+    */
 
     // Create AxialSymetricPt objects in order to define a trajectory cartesian point with rotational freedom about the
     // tool's z axis.
     {
       using namespace descartes_core;
       TrajectoryPtPtr pt = TrajectoryPtPtr(new descartes_trajectory::AxialSymmetricPt(
-          pose, ORIENTATION_INCREMENT, descartes_trajectory::AxialSymmetricPt::FreeAxis::Z_AXIS,
+          pose, orientation_increment_, descartes_trajectory::AxialSymmetricPt::FreeAxis::Z_AXIS,
           TimingConstraint(0.5)));
       // saving points into trajectory
       traj.push_back(pt);
     }
   }
 
-  ROS_INFO_STREAM_NAMED(name_, "getAllIK found all solutions for trajectory");
+  //ROS_INFO_STREAM_NAMED(name_, "getAllIK found all solutions for trajectory");
   return true;
 }
 
