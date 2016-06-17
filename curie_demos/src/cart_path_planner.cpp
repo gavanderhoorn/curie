@@ -121,19 +121,14 @@ bool CartPathPlanner::generateCartGraph()
 
   // ------------------------------------------------------------------
   // Create the Descartes planning graph
-  bool result = planner_.insertGraph(traj);
-  // ------------------------------------------------------------------
+  if (!planner_.insertGraph(traj))
+  {
+    return false;
+  }
 
-  if (result)
-  {
-    double duration = (ros::Time::now() - start_time).toSec();
-    ROS_INFO_STREAM_NAMED(name_, "Descartes graph generated in " << duration << " seconds with " << boost::num_vertices(pg.getGraph()) << " vertices");
-  }
-  else
-  {
-    ROS_ERROR_STREAM("Could not create graph");
-    exit(-1);
-  }
+  double duration = (ros::Time::now() - start_time).toSec();
+  ROS_INFO_STREAM_NAMED(name_, "Descartes graph generated in " << duration << " seconds with " << boost::num_vertices(pg.getGraph()) << " vertices");
+  std::cout << std::endl;
 
   return true;
 }
@@ -149,6 +144,8 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
 
   // Remove any previous Cartesian vertices/edges
   task_graph->clearCartesianVertices(indent);
+
+  ROS_INFO_STREAM_NAMED(name_, "Converting Descartes graph to Bolt graph");
 
   // For converting to MoveIt! format
   moveit::core::RobotStatePtr moveit_robot_state(new moveit::core::RobotState(*visual_tools_->getSharedRobotState()));

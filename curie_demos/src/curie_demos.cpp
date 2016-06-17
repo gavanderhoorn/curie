@@ -753,7 +753,7 @@ bool CurieDemos::generateCartGraph()
   {
     if (!cart_path_planner_->generateCartGraph())
     {
-      ROS_WARN_STREAM_NAMED(name_, "Unable to populate Descartes graph - try moving the start location");
+      ROS_INFO_STREAM_NAMED(name_, "Unable to populate Descartes graph - try moving the start location");
       ros::Duration(1.0).sleep();
     }
     else
