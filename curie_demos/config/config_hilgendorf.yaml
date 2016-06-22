@@ -20,6 +20,7 @@ curie_demos:
   experience_planner: bolt
   #planning_group_name: both_arms
   #planning_group_name: right_arm
+  #planning_group_name: two_dof
   planning_group_name: three_dof
   use_task_planning: true  # cartesian hybrid planning
   post_processing: false
@@ -43,7 +44,7 @@ debug_interface:
 
 # ====================================================
 sparse_graph:
-  save_enabled: true
+  save_enabled: false
   super_debug: false # run more checks and tests that slow down speed
   verbose:
     add: false # debug when addVertex() and addEdge() are called
@@ -52,7 +53,7 @@ sparse_graph:
     spars_graph_speed: 0.1 #.00001 # if 0, does not animate but only single image draw
     database_vertices: true
     database_edges: true
-    database_coverage: true # the grey circles around vertices
+    database_coverage: false # the grey circles around vertices
     graph_after_loading: false
     quality_path_simp: true # simplification
     astar: true # show node expansions and openings
@@ -62,27 +63,27 @@ sparse_graph:
 sparse_criteria:
   sparse_delta_fraction: 0.1
   dense_delta_fraction: 0.01
+  penetration_overlap_fraction: 0.01
   near_sample_points_multiple: 2
   stretch_factor: 5 # 0 means auto set
-  discretize_penetration_dist: 0.01 #0.001
   obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
   fourth_criteria_after_failures: 1000 # mode change to 4th criteria after this many failures
   terminate_after_failures: 1000 # total failures, including 4th criteria
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
   use_discretized_samples: true
-  use_random_samples: false
+  use_random_samples: true
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
   save_interval: 100 # how often to save during randmo sampling
   verbose:
     added_reason: true # print when adding vertices & edges, and the reason why
-    criteria: false
-    quality: false
-    remove_close: false
+    criteria: true # all criteria except 4th (quality)
+    quality: false # 4th criteria
+    remove_close: true
   visualize:
-    attempted_states: false # show the current sampled state before its added
+    attempted_states: true # show the current sampled state before its added
     connectivity: false # show states in different connected components for connectivity criteria
     quality_criteria: false
     remove_close_vertices: false
@@ -96,7 +97,7 @@ vertex_discretizer:
     verbose: true
     thread: false # output within threading (very verbose)
   visualize:
-    grid_generation: true
+    grid_generation: false
 
 # ====================================================
 task_graph:

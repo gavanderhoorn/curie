@@ -287,7 +287,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/ompl_visual1
           Name: ompl1 - markers
           Namespaces:
-            {}
+            Sphere: true
           Queue Size: 100
           Value: true
         - Attached Body Color: 150; 50; 150
@@ -1259,8 +1259,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/ompl_visual5
           Name: ompl5 - markers
           Namespaces:
-            Cylinder: true
-            path_spheres: true
+            {}
           Queue Size: 100
           Value: true
         - Attached Body Color: 150; 50; 150
@@ -1503,8 +1502,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/ompl_visual6
           Name: ompl6 - markers
           Namespaces:
-            Cylinder: true
-            path_spheres: true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -2726,9 +2724,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/cartesian_trajectory
           Name: Cart
           Namespaces:
-            Arrow: true
-            axes: true
-            line: true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -2761,22 +2757,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 5.75472
+      Distance: 6.08198
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.330523
-        Y: -0.237648
-        Z: -2.42929e-06
+        X: -0.0509973
+        Y: -2.18169
+        Z: -9.98778e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.314797
+      Pitch: 0.499797
       Target Frame: robot_table_link
       Value: XYOrbit (rviz)
-      Yaw: 5.97825
+      Yaw: 5.98825
     Saved: ~
 Window Geometry:
   Displays:

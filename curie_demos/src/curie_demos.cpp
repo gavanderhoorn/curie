@@ -42,6 +42,8 @@
 // ROS parameter loading
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
 
+#include <ompl_visual_tools/projection_viz_window.h>
+
 // this package
 #include <curie_demos/curie_demos.h>
 
@@ -590,6 +592,7 @@ void CurieDemos::loadVisualTools()
     moveit_visual->setPlanningSceneMonitor(planning_scene_monitor_);
     moveit_visual->setManualSceneUpdating(true);
     moveit_visual->setGlobalScale(1.0);
+    //moveit_visual->setGlobalScale(5.0);
 
     MoveItVizWindowPtr viz = MoveItVizWindowPtr(new MoveItVizWindow(moveit_visual, si_));
     viz->setJointModelGroup(jmg_);
@@ -609,7 +612,7 @@ void CurieDemos::loadVisualTools()
     const bool invert_colors = true;
     viz->setMinMaxEdgeCost(0, 110, invert_colors);
     viz->setMinMaxEdgeRadius(0.001, 0.004);
-    viz->setMinMaxStateRadius(0.2, 1.4);
+    viz->setMinMaxStateRadius(0.5, 5);
 
     // Copy pointers over
     // clang-format off
@@ -666,6 +669,19 @@ void CurieDemos::loadVisualTools()
   visual->setVizWindow(4, viz4_);
   visual->setVizWindow(5, viz5_);
   visual->setVizWindow(6, viz6_);
+
+
+  // Projection viewer - mirrors MoveItVisualTools 6
+  {
+    ProjectionVizWindowPtr viz = ProjectionVizWindowPtr(new ProjectionVizWindow(viz6_->getVisualTools(), si_));
+    // Calibrate the color scale for visualization
+    const bool invert_colors = true;
+    viz->setMinMaxEdgeCost(0, 110, invert_colors);
+    viz->setMinMaxEdgeRadius(0.001, 0.004);
+    viz->setMinMaxStateRadius(1, 4);
+
+    visual->setVizWindow(7, viz);
+  }
 
   // Set other hooks
   visual->setWaitForUserFeedback(boost::bind(&CurieDemos::waitForNextStep, this, _1));
