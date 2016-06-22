@@ -156,6 +156,7 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   std::map<JointGraph::vertex_descriptor, ompl::tools::bolt::TaskVertex> descarteToBoltVertex;
 
   ompl::tools::bolt::TaskVertex startingVertex = task_graph->getNumVertices() - 1;
+  (void)startingVertex; // prevent unused variable warning
   std::size_t new_vertex_count = 0;
   const ompl::tools::bolt::VertexType vertex_type = ompl::tools::bolt::CARTESIAN;
   const ompl::tools::bolt::VertexLevel level = 1;  // middle layer
@@ -197,6 +198,7 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
     new_vertex_count++;
   }
   ompl::tools::bolt::TaskVertex endingVertex = task_graph->getNumVertices() - 1;
+  (void)endingVertex; // prevent unused variable warning
   ROS_DEBUG_STREAM_NAMED(name_, "Added " << new_vertex_count << " new vertices");
 
   // Iterate through edges

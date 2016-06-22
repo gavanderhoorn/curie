@@ -89,6 +89,9 @@ protected:
 
   collision_detection::CollisionRequest collision_request_with_cost_;
   bool verbose_;
+
+  /** \brief Debugging mode that always says state is collision free */
+  bool always_free_mode_ = true;
 };
 }
 

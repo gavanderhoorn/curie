@@ -8,9 +8,9 @@ curie_demos:
   check_valid_vertices: false
   preprocess_spars: false
   load_spars: true
-  create_spars: false
-  continue_spars: false # even if a file has been saved, randomly sample for more coverage
-  run_problems: true # do plans?
+  create_spars: true
+  continue_spars: true # even if a file has been saved, randomly sample for more coverage
+  run_problems: false # do plans?
 
   # run type
   headless: false
@@ -19,7 +19,8 @@ curie_demos:
   auto_run: true # do not wait to move interactive markers
   experience_planner: bolt
   #planning_group_name: both_arms
-  planning_group_name: right_arm
+  #planning_group_name: right_arm
+  planning_group_name: three_dof
   use_task_planning: true  # cartesian hybrid planning
   post_processing: false
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
@@ -42,12 +43,12 @@ debug_interface:
 
 # ====================================================
 sparse_graph:
-  save_enabled: false
+  save_enabled: true
   super_debug: false # run more checks and tests that slow down speed
   verbose:
     add: false # debug when addVertex() and addEdge() are called
   visualize:
-    spars_graph: false
+    spars_graph: true
     spars_graph_speed: 0.1 #.00001 # if 0, does not animate but only single image draw
     database_vertices: true
     database_edges: true
@@ -95,7 +96,7 @@ vertex_discretizer:
     verbose: true
     thread: false # output within threading (very verbose)
   visualize:
-    grid_generation: false
+    grid_generation: true
 
 # ====================================================
 task_graph:
