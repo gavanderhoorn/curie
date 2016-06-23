@@ -27,6 +27,7 @@ curie_demos:
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
   seed_random: true
   use_logging: false # write to file log info
+  collision_checking_enabled: false
   visualize:
     display_database: false # does not display database as it is built, however
     start_goal_states: false
@@ -47,10 +48,10 @@ sparse_graph:
   save_enabled: false
   super_debug: false # run more checks and tests that slow down speed
   verbose:
-    add: false # debug when addVertex() and addEdge() are called
+    add: true # debug when addVertex() and addEdge() are called
   visualize:
     spars_graph: true
-    spars_graph_speed: 0.1 #.00001 # if 0, does not animate but only single image draw
+    spars_graph_speed: 0.00001 # if 0, does not animate but only single image draw
     database_vertices: true
     database_edges: true
     database_coverage: false # the grey circles around vertices
@@ -63,11 +64,11 @@ sparse_graph:
 sparse_criteria:
   sparse_delta_fraction: 0.1
   dense_delta_fraction: 0.01
-  penetration_overlap_fraction: 0.01
+  penetration_overlap_fraction: 0.1
   near_sample_points_multiple: 2
   stretch_factor: 5 # 0 means auto set
   obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
-  fourth_criteria_after_failures: 1000 # mode change to 4th criteria after this many failures
+  fourth_criteria_after_failures: 100 # mode change to 4th criteria after this many failures
   terminate_after_failures: 1000 # total failures, including 4th criteria
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
@@ -83,7 +84,7 @@ sparse_criteria:
     quality: false # 4th criteria
     remove_close: true
   visualize:
-    attempted_states: true # show the current sampled state before its added
+    attempted_states: false # show the current sampled state before its added
     connectivity: false # show states in different connected components for connectivity criteria
     quality_criteria: false
     remove_close_vertices: false
@@ -98,6 +99,7 @@ vertex_discretizer:
     thread: false # output within threading (very verbose)
   visualize:
     grid_generation: false
+    grid_generation_wait: false
 
 # ====================================================
 task_graph:

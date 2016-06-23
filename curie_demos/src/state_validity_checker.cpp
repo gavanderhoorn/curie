@@ -68,9 +68,9 @@ moveit_ompl::StateValidityChecker::StateValidityChecker(const std::string &group
   collision_request_with_distance_verbose_ = collision_request_with_distance_;
   collision_request_with_distance_verbose_.verbose = true;
 
-  if (always_free_mode_)
+  if (!checking_enabled_)
   {
-    ROS_WARN_STREAM_NAMED(group_name_, "StateValidityChecker is in always free mode - no collision checking will be performed");
+    ROS_WARN_STREAM_NAMED(group_name_, "StateValidityChecker collision checking is DISABLED");
   }
 }
 
@@ -84,13 +84,13 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
   // check bounds
   if (!si_->satisfiesBounds(state))
   {
-    if (verbose || always_free_mode_)
+    if (verbose || checking_enabled_)
       ROS_INFO("State outside bounds");
     return false;
   }
 
   // Debugging mode that always says state is collision free
-  if (always_free_mode_)
+  if (!checking_enabled_)
   {
     return true;
   }
@@ -126,13 +126,13 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
 {
   if (!si_->satisfiesBounds(state))
   {
-    if (verbose || always_free_mode_)
+    if (verbose || checking_enabled_)
       ROS_INFO("State outside bounds");
     return false;
   }
 
   // Debugging mode that always says state is collision free
-  if (always_free_mode_)
+  if (!checking_enabled_)
   {
     dist = std::numeric_limits<double>::infinity();
     return true;

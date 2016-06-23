@@ -184,6 +184,7 @@ public:
   bool auto_run_;
   bool track_memory_consumption_ = false;
   bool use_logging_ = false;
+  bool collision_checking_enabled_ = true;
 
   // Verbosity levels
   bool debug_print_trajectory_;

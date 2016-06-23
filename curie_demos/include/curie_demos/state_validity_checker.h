@@ -75,6 +75,19 @@ public:
 
   void setVerbose(bool flag);
 
+  /** \brief Getter for CheckingEnabled */
+  const bool& getCheckingEnabled() const
+  {
+    return checking_enabled_;
+  }
+
+  /** \brief Setter for CheckingEnabled */
+  void setCheckingEnabled(const bool& checking_enabled)
+  {
+    checking_enabled_ = checking_enabled;
+  }
+
+
 protected:
   std::string group_name_;
   TSStateStorage tss_;
@@ -91,7 +104,7 @@ protected:
   bool verbose_;
 
   /** \brief Debugging mode that always says state is collision free */
-  bool always_free_mode_ = true;
+  bool checking_enabled_ = false;
 };
 }
 

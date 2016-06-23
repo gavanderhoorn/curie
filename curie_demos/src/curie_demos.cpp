@@ -58,7 +58,7 @@ namespace rvt = rviz_visual_tools;
 
 namespace curie_demos
 {
-CurieDemos::CurieDemos(const std::string &hostname, const std::string& package_path)
+CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_path)
   : MoveItBase(), nh_("~"), remote_control_(nh_), package_path_(package_path)
 {
   // Profiler
@@ -90,6 +90,7 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string& package_p
   error += !rosparam_shortcuts::get(name_, rpnh, "post_processing", post_processing_);
   error += !rosparam_shortcuts::get(name_, rpnh, "post_processing_interval", post_processing_interval_);
   error += !rosparam_shortcuts::get(name_, rpnh, "use_logging", use_logging_);
+  error += !rosparam_shortcuts::get(name_, rpnh, "collision_checking_enabled", collision_checking_enabled_);
   // Visualize
   error += !rosparam_shortcuts::get(name_, rpnh, "visualize/display_database", visualize_display_database_);
   error += !rosparam_shortcuts::get(name_, rpnh, "visualize/interpolated_traj", visualize_interpolated_traj_);
@@ -153,8 +154,10 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string& package_p
     // Create cartesian planner
     cart_path_planner_.reset(new CartPathPlanner(this));
 
-    imarker_start_.reset(new IMarkerRobotState(planning_scene_monitor_, "start", jmg_, ee_link_, rvt::GREEN, package_path_));
-    imarker_goal_.reset(new IMarkerRobotState(planning_scene_monitor_, "goal", jmg_, ee_link_, rvt::ORANGE, package_path_));
+    imarker_start_.reset(
+        new IMarkerRobotState(planning_scene_monitor_, "start", jmg_, ee_link_, rvt::GREEN, package_path_));
+    imarker_goal_.reset(
+        new IMarkerRobotState(planning_scene_monitor_, "goal", jmg_, ee_link_, rvt::ORANGE, package_path_));
   }
 
   // Wait until user does something
@@ -358,13 +361,13 @@ bool CurieDemos::runProblems()
     logging_file.open(file_path.c_str(), std::ios::out);  // no append | std::ios::app);
   }
 
-  if (visualize_wait_between_plans_) // Wait for first
+  if (visualize_wait_between_plans_)  // Wait for first
     waitForNextStep("run first problem");
 
   // Run the demo the desired number of times
   for (std::size_t run_id = 0; run_id < planning_runs_; ++run_id)
   {
-    if (!ros::ok()) // Check if user wants to shutdown
+    if (!ros::ok())  // Check if user wants to shutdown
       break;
 
     std::cout << std::endl;
@@ -423,7 +426,7 @@ bool CurieDemos::runProblems()
     else  // Main pause between planning instances - allows user to analyze
       ros::Duration(visualize_time_between_plans_).sleep();
 
-    if (!ros::ok()) // Check if user wants to shutdown
+    if (!ros::ok())  // Check if user wants to shutdown
       break;
 
     // Reset marker if this is not our last run
@@ -540,9 +543,13 @@ bool CurieDemos::plan()
 
 void CurieDemos::loadCollisionChecker()
 {
-  // Set state validity checking for this space
-  experience_setup_->setStateValidityChecker(ob::StateValidityCheckerPtr(
-      new moveit_ompl::StateValidityChecker(planning_group_name_, si_, *current_state_, planning_scene_, space_)));
+  // Create state validity checking for this space
+  moveit_ompl::StateValidityChecker *checker =
+      new moveit_ompl::StateValidityChecker(planning_group_name_, si_, *current_state_, planning_scene_, space_);
+  checker->setCheckingEnabled(collision_checking_enabled_);
+
+  // Set checker
+  experience_setup_->setStateValidityChecker(ob::StateValidityCheckerPtr(checker));
 
   // The interval in which obstacles are checked for between states
   // seems that it default to 0.01 but doesn't do a good job at that level
@@ -591,8 +598,7 @@ void CurieDemos::loadVisualTools()
     moveit_visual->loadMarkerPub(false);
     moveit_visual->setPlanningSceneMonitor(planning_scene_monitor_);
     moveit_visual->setManualSceneUpdating(true);
-    moveit_visual->setGlobalScale(1.0);
-    //moveit_visual->setGlobalScale(5.0);
+    moveit_visual->setGlobalScale(2.0);
 
     MoveItVizWindowPtr viz = MoveItVizWindowPtr(new MoveItVizWindow(moveit_visual, si_));
     viz->setJointModelGroup(jmg_);
@@ -670,9 +676,9 @@ void CurieDemos::loadVisualTools()
   visual->setVizWindow(5, viz5_);
   visual->setVizWindow(6, viz6_);
 
-
   // Projection viewer - mirrors MoveItVisualTools 6
   {
+    viz6_->getVisualTools()->setGlobalScale(2.0);
     ProjectionVizWindowPtr viz = ProjectionVizWindowPtr(new ProjectionVizWindow(viz6_->getVisualTools(), si_));
     // Calibrate the color scale for visualization
     const bool invert_colors = true;
@@ -701,7 +707,7 @@ void CurieDemos::visualizeStartGoal()
 
 void CurieDemos::displayWaitingState(bool waiting)
 {
-  //std::cout << " TODO display waiting state " << std::endl;
+  // std::cout << " TODO display waiting state " << std::endl;
   // if (waiting)
   //   publishViewFinderFrame(rvt::REGULAR);
   // else
@@ -780,7 +786,8 @@ bool CurieDemos::generateCartGraph()
   if (!cart_path_planner_->convertDescartesGraphToBolt(bolt_->getTaskGraph()))
   {
     ROS_ERROR_STREAM_NAMED(name_, "Unable to convert Descartes graph to Bolt TaskGraph");
-    return false;;
+    return false;
+    ;
   }
 
   return true;
