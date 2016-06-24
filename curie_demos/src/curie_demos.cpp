@@ -678,7 +678,8 @@ void CurieDemos::loadVisualTools()
 
   // Projection viewer - mirrors MoveItVisualTools 6
   {
-    viz6_->getVisualTools()->setGlobalScale(2.0);
+    viz6_->getVisualTools()->setGlobalScale(0.1);
+
     ProjectionVizWindowPtr viz = ProjectionVizWindowPtr(new ProjectionVizWindow(viz6_->getVisualTools(), si_));
     // Calibrate the color scale for visualization
     const bool invert_colors = true;
