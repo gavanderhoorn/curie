@@ -1,0 +1,53 @@
+# Packages being released into bloom:
+- git:
+    uri: https://github.com/davetcoleman/moveit_boilderplate.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/rviz_visual_tools.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/moveit_visual_tools.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/rosparam_shortcuts.git
+    version: kinetic-devel
+
+# Others Code that is not released
+- git:
+    uri: https://github.com/davetcoleman/descartes.git
+    version: indigo-all
+- git:
+    uri: https://github.com/davetcoleman/hilgendorf.git
+    version: indigo-devel
+- git:
+    uri: https://github.com/davetcoleman/robotiq.git
+    version: indigo_reduce_mesh_path_length
+- git:
+    uri: https://github.com/davetcoleman/roscon_2015.git
+    version: master-all
+- git:
+    uri: https://github.com/davetcoleman/universal_robot.git
+    version: indigo-devel
+
+# My custom code for Curie
+- git:
+    uri: https://github.com/davetcoleman/curie.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/moveit_dashboard.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/moveit_ompl.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/ompl.git
+    version: bolt
+- git:
+    uri: https://github.com/davetcoleman/ompl_bolt.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/ompl_experience_demos.git
+    version: kinetic-devel
+- git:
+    uri: https://github.com/davetcoleman/ompl_visual_tools.git
+    version: kinetic-devel
