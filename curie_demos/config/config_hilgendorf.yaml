@@ -10,7 +10,7 @@ curie_demos:
   load_spars: true
   create_spars: true
   continue_spars: true # even if a file has been saved, randomly sample for more coverage
-  run_problems: false # do plans?
+  run_problems: true # do plans?
 
   # run type
   headless: false
@@ -21,7 +21,9 @@ curie_demos:
   #planning_group_name: both_arms
   #planning_group_name: right_arm
   #planning_group_name: two_dof
-  planning_group_name: three_dof
+  #planning_group_name: three_dof
+  #planning_group_name: four_dof
+  planning_group_name: five_dof
   use_task_planning: true  # cartesian hybrid planning
   post_processing: false
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
@@ -45,16 +47,16 @@ debug_interface:
 
 # ====================================================
 sparse_graph:
-  save_enabled: false
+  save_enabled: true
   super_debug: false # run more checks and tests that slow down speed
   verbose:
-    add: true # debug when addVertex() and addEdge() are called
+    add: false # debug when addVertex() and addEdge() are called
   visualize:
-    spars_graph: true
+    spars_graph: false
     spars_graph_speed: 0.00001 # if 0, does not animate but only single image draw
-    database_vertices: true
-    database_edges: true
-    database_coverage: false # the grey circles around vertices
+    database_vertices: true # must have spars_graph enabled
+    database_edges: true # must have spars_graph enabled
+    database_coverage: false # the grey circles around vertices, must have spars_graph enabled
     graph_after_loading: false
     quality_path_simp: true # simplification
     astar: true # show node expansions and openings
@@ -62,13 +64,14 @@ sparse_graph:
 
 # ====================================================
 sparse_criteria:
-  sparse_delta_fraction: 0.1
+  #sparse_delta_fraction: 0.1
+  sparse_delta_fraction: 0.2
   dense_delta_fraction: 0.01
   penetration_overlap_fraction: 0.1
   near_sample_points_multiple: 2
   stretch_factor: 5 # 0 means auto set
   obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
-  fourth_criteria_after_failures: 100 # mode change to 4th criteria after this many failures
+  fourth_criteria_after_failures: 1000 # mode change to 4th criteria after this many failures
   terminate_after_failures: 1000 # total failures, including 4th criteria
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
@@ -77,10 +80,10 @@ sparse_criteria:
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
-  save_interval: 100 # how often to save during randmo sampling
+  save_interval: 200 # how often to save during random sampling
   verbose:
     added_reason: true # print when adding vertices & edges, and the reason why
-    criteria: true # all criteria except 4th (quality)
+    criteria: false # all criteria except 4th (quality)
     quality: false # 4th criteria
     remove_close: true
   visualize:
@@ -95,7 +98,7 @@ sparse_criteria:
 # ====================================================
 vertex_discretizer:
   verbose:
-    verbose: true
+    verbose: false
     thread: false # output within threading (very verbose)
   visualize:
     grid_generation: false

@@ -598,7 +598,7 @@ void CurieDemos::loadVisualTools()
     moveit_visual->loadMarkerPub(false);
     moveit_visual->setPlanningSceneMonitor(planning_scene_monitor_);
     moveit_visual->setManualSceneUpdating(true);
-    moveit_visual->setGlobalScale(2.0);
+    moveit_visual->setGlobalScale(0.8);
 
     MoveItVizWindowPtr viz = MoveItVizWindowPtr(new MoveItVizWindow(moveit_visual, si_));
     viz->setJointModelGroup(jmg_);
@@ -678,7 +678,7 @@ void CurieDemos::loadVisualTools()
 
   // Projection viewer - mirrors MoveItVisualTools 6
   {
-    viz6_->getVisualTools()->setGlobalScale(0.1);
+    viz6_->getVisualTools()->setGlobalScale(1.0);
 
     ProjectionVizWindowPtr viz = ProjectionVizWindowPtr(new ProjectionVizWindow(viz6_->getVisualTools(), si_));
     // Calibrate the color scale for visualization
