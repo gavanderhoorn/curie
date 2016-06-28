@@ -1,53 +1,69 @@
 # Packages being released into bloom:
 - git:
+    local-name: moveit_boilderplate
     uri: https://github.com/davetcoleman/moveit_boilderplate.git
     version: kinetic-devel
 - git:
+    local-name: rviz_visual_tools
     uri: https://github.com/davetcoleman/rviz_visual_tools.git
     version: kinetic-devel
 - git:
+    local-name: moveit_visual_tools
     uri: https://github.com/davetcoleman/moveit_visual_tools.git
     version: kinetic-devel
 - git:
+    local-name: rosparam_shortcuts
     uri: https://github.com/davetcoleman/rosparam_shortcuts.git
     version: kinetic-devel
 
 # Others Code that is not released
 - git:
+    local-name: descartes
     uri: https://github.com/davetcoleman/descartes.git
     version: indigo-all
 - git:
+    local-name: hilgendorf
     uri: https://github.com/davetcoleman/hilgendorf.git
     version: indigo-devel
 - git:
+    local-name: robotiq
     uri: https://github.com/davetcoleman/robotiq.git
     version: indigo_reduce_mesh_path_length
 - git:
+    local-name: roscon_2015
     uri: https://github.com/davetcoleman/roscon_2015.git
     version: master-all
 - git:
+    local-name: universal_robot
     uri: https://github.com/davetcoleman/universal_robot.git
     version: indigo-devel
 
 # My custom code for Curie
 - git:
+    local-name: curie
     uri: https://github.com/davetcoleman/curie.git
     version: kinetic-devel
 - git:
+    local-name: moveit_dashboard
     uri: https://github.com/davetcoleman/moveit_dashboard.git
     version: kinetic-devel
 - git:
+    local-name: moveit_ompl
     uri: https://github.com/davetcoleman/moveit_ompl.git
     version: kinetic-devel
 - git:
+    local-name: ompl
     uri: https://github.com/davetcoleman/ompl.git
     version: bolt
 - git:
+    local-name: ompl_bolt
     uri: https://github.com/davetcoleman/ompl_bolt.git
     version: kinetic-devel
 - git:
+    local-name: ompl_experience_demos
     uri: https://github.com/davetcoleman/ompl_experience_demos.git
     version: kinetic-devel
 - git:
+    local-name: ompl_visual_tools
     uri: https://github.com/davetcoleman/ompl_visual_tools.git
     version: kinetic-devel
