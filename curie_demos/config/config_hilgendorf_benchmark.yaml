@@ -27,7 +27,7 @@ curie_demos:
   use_task_planning: true  # cartesian hybrid planning
   post_processing: false
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
-  seed_random: true
+  seed_random: false
   use_logging: false # write to file log info
   collision_checking_enabled: false
   visualize:
@@ -76,7 +76,7 @@ sparse_criteria:
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
   use_discretized_samples: true
-  use_random_samples: true
+  use_random_samples: false
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad

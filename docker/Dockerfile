@@ -9,7 +9,7 @@ WORKDIR $CATKIN_WS/src
 # delete old source code, download curie source
 RUN cd .. && rm -rf src/ && mkdir src && cd src && \
     wstool init && \
-    echo "reset" && \
+    echo "reset1" && \
     wstool merge https://raw.githubusercontent.com/davetcoleman/curie/kinetic-devel/curie.rosinstall && \
     wstool update
 
@@ -24,7 +24,7 @@ RUN touch robotiq/robotiq_action_server/CATKIN_IGNORE && \
 
 # update apt-get because osrf image clears this cache and download deps
 RUN apt-get update && \
-    apt-get install less emacs bash-completion && \
+    apt-get install -y less emacs bash-completion && \
     rosdep install -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO} && \
     apt-get remove -y ros-${ROS_DISTRO}-ompl && \
     rm -rf /var/lib/apt/lists/*
@@ -35,4 +35,5 @@ RUN source /ros_entrypoint.sh && \
     catkin build --no-status -DCMAKE_BUILD_TYPE=Release
 
 RUN source devel/setup.bash && \
-    roslaunch curie_demos hilgendorf_benchmark.launch
+    roslaunch curie_demos hilgendorf_benchmark.launch && \
+    cat ~/ros/ompl_storage/benchmark_bolt_right_arm_0.250000_database.benchmark
