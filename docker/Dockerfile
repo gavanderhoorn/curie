@@ -9,6 +9,7 @@ WORKDIR $CATKIN_WS/src
 # delete old source code, download curie source
 RUN cd .. && rm -rf src/ && mkdir src && cd src && \
     wstool init && \
+    echo "reset" && \
     wstool merge https://raw.githubusercontent.com/davetcoleman/curie/kinetic-devel/curie.rosinstall && \
     wstool update
 
@@ -23,6 +24,7 @@ RUN touch robotiq/robotiq_action_server/CATKIN_IGNORE && \
 
 # update apt-get because osrf image clears this cache and download deps
 RUN apt-get update && \
+    apt-get install less emacs bash-completion && \
     rosdep install -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO} && \
     apt-get remove -y ros-${ROS_DISTRO}-ompl && \
     rm -rf /var/lib/apt/lists/*
@@ -30,4 +32,7 @@ RUN apt-get update && \
 # build repo
 WORKDIR $CATKIN_WS
 RUN source /ros_entrypoint.sh && \
-    catkin build --no-status
+    catkin build --no-status -DCMAKE_BUILD_TYPE=Release
+
+RUN source devel/setup.bash && \
+    roslaunch curie_demos hilgendorf_benchmark.launch

@@ -2,7 +2,7 @@
 # Main program
 curie_demos:
   # run mode
-  benchmark_performance: false
+  benchmark_performance: true
   display_disjoint_sets: false
   eliminate_dense_disjoint_sets: false
   check_valid_vertices: false
@@ -13,7 +13,7 @@ curie_demos:
   run_problems: false # do plans?
 
   # run type
-  headless: false
+  headless: true
   planning_runs: 100
   problem_type: 1 # 0 - random, 1 - imarkers
   auto_run: true # do not wait to move interactive markers
@@ -47,7 +47,7 @@ debug_interface:
 
 # ====================================================
 sparse_graph:
-  save_enabled: true
+  save_enabled: false
   super_debug: false # run more checks and tests that slow down speed
   verbose:
     add: false # debug when addVertex() and addEdge() are called
@@ -71,8 +71,8 @@ sparse_criteria:
   near_sample_points_multiple: 2
   stretch_factor: 5 # 0 means auto set
   obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
-  fourth_criteria_after_failures: 5000 # mode change to 4th criteria after this many failures
-  terminate_after_failures: 5000 # total failures, including 4th criteria
+  fourth_criteria_after_failures: 5 # mode change to 4th criteria after this many failures
+  terminate_after_failures: 5 # total failures, including 4th criteria
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
   use_discretized_samples: true
@@ -80,7 +80,7 @@ sparse_criteria:
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
-  save_interval: 1000 # how often to save during random sampling
+  save_interval: 1000000 # how often to save during random sampling
   verbose:
     added_reason: false # print when adding vertices & edges, and the reason why
     criteria: false # all criteria except 4th (quality)

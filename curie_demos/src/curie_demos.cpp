@@ -210,13 +210,15 @@ bool CurieDemos::loadOMPL()
   si_ = experience_setup_->getSpaceInformation();
 
   // Set the database file location
-  std::string file_path;
+  std::string file_path = "";
   std::string file_name;
+  if (benchmark_performance_)
+    file_name = "benchmark_";
   if (is_bolt_)
-    file_name = "bolt_" + planning_group_name_ + "_" +
+    file_name = file_name + "bolt_" + planning_group_name_ + "_" +
                 std::to_string(bolt_->getSparseCriteria()->sparseDeltaFraction_) + "_database";
   else
-    file_name = "thunder_" + planning_group_name_ + "_database";
+    file_name = file_name +" thunder_" + planning_group_name_ + "_database";
   moveit_ompl::getFilePath(file_path, file_name, "ros/ompl_storage");
   experience_setup_->setFilePath(file_path);  // this is here because its how we do it in moveit_ompl
 
@@ -277,7 +279,7 @@ void CurieDemos::run()
   // Benchmark performance
   if (benchmark_performance_ && is_bolt_)
   {
-    bolt_->benchmarkPerformance();
+    bolt_->benchmarkSparseGraphGeneration();
     ROS_INFO_STREAM_NAMED(name_, "Finished benchmarking");
     exit(0);
   }
@@ -635,12 +637,15 @@ void CurieDemos::loadVisualTools()
   ros::spinOnce();
 
   // Secondary loop to give time for all the publishers to load up
-  for (std::size_t i = 1; i <= NUM_VISUALS; ++i)
+  if (!headless_)
   {
-    MoveItVisualToolsPtr moveit_visual = vizs_[i - 1]->getVisualTools();
-    // Get TF
-    getTFTransform("world", "world_visual" + std::to_string(i), offset);
-    moveit_visual->enableRobotStateRootOffet(offset);
+    for (std::size_t i = 1; i <= NUM_VISUALS; ++i)
+    {
+      MoveItVisualToolsPtr moveit_visual = vizs_[i - 1]->getVisualTools();
+      // Get TF
+      getTFTransform("world", "world_visual" + std::to_string(i), offset);
+      moveit_visual->enableRobotStateRootOffet(offset);
+    }
   }
 
   viz6_->getVisualTools()->setBaseFrame("world");
@@ -650,13 +655,16 @@ void CurieDemos::loadVisualTools()
   ros::spinOnce();
 
   // Block until all visualizers are finished loading
-  for (std::size_t i = 1; i <= NUM_VISUALS; ++i)
+  if (!headless_)
   {
-    vizs_[i - 1]->getVisualTools()->waitForMarkerPub();
+    for (std::size_t i = 1; i <= NUM_VISUALS; ++i)
+    {
+      vizs_[i - 1]->getVisualTools()->waitForMarkerPub();
 
-    // Show the initial robot state
-    MoveItVisualToolsPtr moveit_visual = vizs_[i - 1]->getVisualTools();
-    moveit_visual->publishRobotState(moveit_start_);
+      // Show the initial robot state
+      MoveItVisualToolsPtr moveit_visual = vizs_[i - 1]->getVisualTools();
+      moveit_visual->publishRobotState(moveit_start_);
+    }
   }
 
   deleteAllMarkers();
