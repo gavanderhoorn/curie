@@ -28,15 +28,15 @@
 - git:
     local-name: robotiq
     uri: https://github.com/davetcoleman/robotiq.git
-    version: indigo_reduced_mesh_path_length
+    version: jade-all
 - git:
     local-name: roscon_2015
     uri: https://github.com/davetcoleman/roscon_2015.git
     version: master-all
 - git:
     local-name: universal_robot
-    uri: https://github.com/ros-industrial/universal_robot.git
-    version: indigo-devel
+    uri: https://github.com/davetcoleman/universal_robot.git
+    version: indigo-dave
 
 # My custom code for Curie
 - git:

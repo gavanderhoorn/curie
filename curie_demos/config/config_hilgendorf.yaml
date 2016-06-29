@@ -21,8 +21,8 @@ curie_demos:
   #planning_group_name: both_arms
   #planning_group_name: right_arm
   #planning_group_name: two_dof
-  planning_group_name: three_dof
-  #planning_group_name: four_dof
+  #planning_group_name: three_dof
+  planning_group_name: four_dof
   #planning_group_name: five_dof
   use_task_planning: true  # cartesian hybrid planning
   post_processing: false
@@ -47,7 +47,7 @@ debug_interface:
 
 # ====================================================
 sparse_graph:
-  save_enabled: false
+  save_enabled: true
   super_debug: false # run more checks and tests that slow down speed
   verbose:
     add: false # debug when addVertex() and addEdge() are called
