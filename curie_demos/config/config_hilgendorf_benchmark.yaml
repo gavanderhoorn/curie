@@ -45,7 +45,7 @@ debug_interface:
   autonomous: false
   full_autonomous: false # TODO this is not used
 
-# ====================================================
+# ===================================================
 sparse_graph:
   save_enabled: false
   super_debug: false # run more checks and tests that slow down speed

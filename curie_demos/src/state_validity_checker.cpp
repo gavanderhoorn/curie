@@ -68,10 +68,7 @@ moveit_ompl::StateValidityChecker::StateValidityChecker(const std::string &group
   collision_request_with_distance_verbose_ = collision_request_with_distance_;
   collision_request_with_distance_verbose_.verbose = true;
 
-  if (!checking_enabled_)
-  {
-    ROS_WARN_STREAM_NAMED(group_name_, "StateValidityChecker collision checking is DISABLED");
-  }
+  setCheckingEnabled(true);
 }
 
 void moveit_ompl::StateValidityChecker::setVerbose(bool flag)

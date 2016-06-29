@@ -29,7 +29,7 @@ curie_demos:
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
   seed_random: true
   use_logging: false # write to file log info
-  collision_checking_enabled: false
+  collision_checking_enabled: true
   visualize:
     display_database: false # does not display database as it is built, however
     start_goal_states: false

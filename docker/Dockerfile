@@ -9,7 +9,7 @@ WORKDIR $CATKIN_WS/src
 # delete old source code, download curie source
 RUN cd .. && rm -rf src/ && mkdir src && cd src && \
     wstool init && \
-    echo "reset1" && \
+    echo "reset2" && \
     wstool merge https://raw.githubusercontent.com/davetcoleman/curie/kinetic-devel/curie.rosinstall && \
     wstool update
 
@@ -34,6 +34,6 @@ WORKDIR $CATKIN_WS
 RUN source /ros_entrypoint.sh && \
     catkin build --no-status -DCMAKE_BUILD_TYPE=Release
 
-RUN source devel/setup.bash && \
-    roslaunch curie_demos hilgendorf_benchmark.launch && \
-    cat ~/ros/ompl_storage/benchmark_bolt_right_arm_0.250000_database.benchmark
+# RUN source devel/setup.bash && \
+#     roslaunch curie_demos hilgendorf_benchmark.launch && \
+#     cat ~/ros/ompl_storage/benchmark_bolt_right_arm_0.250000_database.benchmark

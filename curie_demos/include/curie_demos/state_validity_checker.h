@@ -85,6 +85,13 @@ public:
   void setCheckingEnabled(const bool& checking_enabled)
   {
     checking_enabled_ = checking_enabled;
+
+    if (!checking_enabled_)
+    {
+      ROS_WARN_STREAM_NAMED(group_name_, "StateValidityChecker collision checking is DISABLED");
+    }
+    else
+      ROS_INFO_STREAM_NAMED(group_name_, "StateValidityChecker collision checking is enabled");
   }
 
 
@@ -104,7 +111,7 @@ protected:
   bool verbose_;
 
   /** \brief Debugging mode that always says state is collision free */
-  bool checking_enabled_ = false;
+  bool checking_enabled_ = true;
 };
 }
 
