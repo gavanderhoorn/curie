@@ -115,10 +115,10 @@ bool MoveItBase::loadPlanningSceneMonitor(const std::string& joint_state_topic)
   {
     // Optional monitors to start:
     // planning_scene_monitor_->startStateMonitor(joint_state_topic, "");
-    planning_scene_monitor_->startPublishingPlanningScene(psm::PlanningSceneMonitor::UPDATE_SCENE,
+    planning_scene_monitor_->getPlanningScene()->setName("curie_scene");
+    planning_scene_monitor_->startPublishingPlanningScene(psm::PlanningSceneMonitor::UPDATE_NONE,
                                                           planning_scene_topic_);
-    // planning_scene_monitor_->getPlanningScene()->setName("planning_scene");
-    planning_scene_monitor_->startSceneMonitor(planning_scene_topic_);
+    //planning_scene_monitor_->startSceneMonitor(planning_scene_topic_);
     // psm::PlanningSceneMonitor::UPDATE_SCENE, "planning_scene");
   }
   else
