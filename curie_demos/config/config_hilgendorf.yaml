@@ -72,7 +72,7 @@ sparse_criteria:
   stretch_factor: 5 # 0 means auto set
   obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
   fourth_criteria_after_failures: 1000 # mode change to 4th criteria after this many failures
-  terminate_after_failures: 1000 # total failures, including 4th criteria
+  terminate_after_failures: 5000 # total failures, including 4th criteria
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
   use_discretized_samples: true

@@ -241,8 +241,6 @@ bool CurieDemos::loadOMPL()
 
 bool CurieDemos::loadData()
 {
-  std::size_t indent = 0;
-
   double vm1, rss1;
   if (track_memory_consumption_)  // Track memory usage
   {
@@ -254,17 +252,10 @@ bool CurieDemos::loadData()
   ROS_INFO_STREAM_NAMED(name_, "Loading or generating roadmap");
   if (is_bolt_)
   {
-    if (!bolt_->loadOrGenerate())
+    if (!bolt_->load())
     {
       ROS_INFO_STREAM_NAMED(name_, "Unable to load sparse graph from file");
       return false;
-    }
-
-    // Add hybrid cartesian planning / task planning
-    if (use_task_planning_)
-    {
-      // Clone the graph to have second and third layers for task planning then free space planning
-      bolt_->getTaskGraph()->generateTaskSpace(indent);
     }
   }
 
@@ -291,26 +282,30 @@ void CurieDemos::run()
     exit(0);
   }
 
-  // Load from file or generate graph
+  // Load from file
+  bool loaded  = false;
   if (load_spars_)
   {
-    if (!loadData())
-    {
-      // Create SPARs graph
-      if (create_spars_ && is_bolt_)
-      {
-        bolt_->getSparseCriteria()->createSPARS();
-      }
-      else
-        ROS_WARN_STREAM_NAMED(name_, "Creating sparse graph disabled, but no file loaded");
-    }
-    else if (continue_spars_)
-    {
-      bolt_->getSparseCriteria()->createSPARS();
-    }
+    loaded = loadData();
   }
-  else
+
+  // Create SPARS
+  if (create_spars_ && (!loaded || continue_spars_))
+  {
+    bolt_->getSparseCriteria()->createSPARS();
+    loaded = true;
+  }
+
+  if (!loaded)
     ROS_WARN_STREAM_NAMED(name_, "Creating AND loading sparse graph disabled, no contents in graph");
+
+  // Add hybrid cartesian planning / task planning
+  if (use_task_planning_)
+  {
+    // Clone the graph to have second and third layers for task planning then free space planning
+    std::size_t indent = 0;
+    bolt_->getTaskGraph()->generateTaskSpace(indent);
+  }
 
   // Display disconnected components
   if (display_disjoint_sets_ && is_bolt_)
