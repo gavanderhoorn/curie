@@ -17,6 +17,7 @@ RUN touch robotiq/robotiq_action_server/CATKIN_IGNORE && \
     touch robotiq/robotiq_c_model_control/CATKIN_IGNORE && \
     touch robotiq/robotiq_ethercat/CATKIN_IGNORE && \
     touch robotiq/robotiq_s_model_control/CATKIN_IGNORE && \
+    touch robotiq/robotiq_joint_state_publisher/CATKIN_IGNORE && \
     touch universal_robot/ur_gazebo/CATKIN_IGNORE && \
     touch roscon_2015/plan_and_run/CATKIN_IGNORE
 
