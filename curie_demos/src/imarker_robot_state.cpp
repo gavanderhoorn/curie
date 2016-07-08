@@ -77,6 +77,7 @@ IMarkerRobotState::IMarkerRobotState(psm::PlanningSceneMonitorPtr planning_scene
       planning_scene_monitor_->getRobotModel()));
   visual_tools_->setPlanningSceneMonitor(planning_scene_monitor_);
   visual_tools_->loadRobotStatePub(nh_.getNamespace() + "/imarker_" + imarker_name + "_state");
+  visual_tools_->enableBatchPublishing();
 
   // Load robot state
   imarker_state_.reset(new moveit::core::RobotState(planning_scene_monitor_->getRobotModel()));

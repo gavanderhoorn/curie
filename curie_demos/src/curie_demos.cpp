@@ -160,16 +160,12 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_p
         new IMarkerRobotState(planning_scene_monitor_, "goal", jmg_, ee_link_, rvt::ORANGE, package_path_));
   }
 
-  // Wait until user does something
-  if (!auto_run_)
-  {
-    std::cout << "spinning... " << std::endl;
-    ros::spin();
-    exit(0);
-  }
-
   // Set remote_control
   remote_control_.setDisplayWaitingState(boost::bind(&CurieDemos::displayWaitingState, this, _1));
+
+  // Wait until user does something
+  if (!auto_run_)
+    waitForNextStep("run first problem");
 
   // Run application
   run();
@@ -301,14 +297,6 @@ void CurieDemos::run()
   if (!loaded)
     ROS_WARN_STREAM_NAMED(name_, "Creating AND loading sparse graph disabled, no contents in graph");
 
-  // Add hybrid cartesian planning / task planning
-  if (use_task_planning_)
-  {
-    // Clone the graph to have second and third layers for task planning then free space planning
-    std::size_t indent = 0;
-    bolt_->getTaskGraph()->generateTaskSpace(indent);
-  }
-
   // Display disconnected components
   if (display_disjoint_sets_ && is_bolt_)
   {
@@ -397,6 +385,8 @@ bool CurieDemos::runProblems()
         exit(-1);
       }
     }
+    std::cout << "temp exit in curie_demos " << std::endl;
+    exit(0);
 
     // Do one plan
     plan();
@@ -596,6 +586,7 @@ void CurieDemos::loadVisualTools()
     moveit_visual->setPlanningSceneMonitor(planning_scene_monitor_);
     moveit_visual->setManualSceneUpdating(true);
     moveit_visual->setGlobalScale(0.8);
+    moveit_visual->enableBatchPublishing();
 
     MoveItVizWindowPtr viz = MoveItVizWindowPtr(new MoveItVizWindow(moveit_visual, si_));
     viz->setJointModelGroup(jmg_);
@@ -780,7 +771,8 @@ bool CurieDemos::generateCartGraph()
     if (!cart_path_planner_->generateCartGraph())
     {
       ROS_INFO_STREAM_NAMED(name_, "Unable to populate Descartes graph - try moving the start location");
-      ros::Duration(1.0).sleep();
+      exit(0);
+      waitForNextStep("attempt Descartes planning again");
     }
     else
       break;
@@ -791,7 +783,6 @@ bool CurieDemos::generateCartGraph()
   {
     ROS_ERROR_STREAM_NAMED(name_, "Unable to convert Descartes graph to Bolt TaskGraph");
     return false;
-    ;
   }
 
   return true;

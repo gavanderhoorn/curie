@@ -7,6 +7,7 @@ Panels:
         - /Grid1/Offset1
         - /Viz1to61
         - /Viz1to61/RobotState3/Links1
+        - /Trajectory1
         - /PlanningScene1/Scene Geometry1
         - /PlanningScene1/Scene Robot1
         - /InteractiveMarkers1
@@ -287,7 +288,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/ompl_visual1
           Name: ompl1 - markers
           Namespaces:
-            Sphere: true
+            {}
           Queue Size: 100
           Value: true
         - Attached Body Color: 150; 50; 150
@@ -1740,7 +1741,7 @@ Visualization Manager:
       Show Robot Collision: false
       Show Robot Visual: true
       Show Trail: false
-      State Display Time: 0.05 s
+      State Display Time: REALTIME
       Trajectory Topic: /hilgendorf/display_trajectory
       Value: true
     - Class: moveit_rviz_plugin/PlanningScene
@@ -2724,7 +2725,8 @@ Visualization Manager:
           Marker Topic: /hilgendorf/cartesian_trajectory
           Name: Cart
           Namespaces:
-            {}
+            Axis Path: true
+            Cylinder: true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -2743,6 +2745,13 @@ Visualization Manager:
         {}
       Update Interval: 0
       Value: false
+    - Class: rviz/Axes
+      Enabled: true
+      Length: 1
+      Name: Axes
+      Radius: 0.1
+      Reference Frame: <Fixed Frame>
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 45; 53; 53
@@ -2757,22 +2766,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 6.08198
+      Distance: 1.72024
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0509973
-        Y: -2.18169
-        Z: -9.98778e-07
+        X: 0.688531
+        Y: -0.744181
+        Z: -6.4115e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.499797
+      Pitch: 0.524797
       Target Frame: robot_table_link
       Value: XYOrbit (rviz)
-      Yaw: 5.98825
+      Yaw: 5.87824
     Saved: ~
 Window Geometry:
   Displays:

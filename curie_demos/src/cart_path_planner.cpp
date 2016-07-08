@@ -56,8 +56,8 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
   imarker_state_.reset(new moveit::core::RobotState(*parent_->moveit_start_));
 
   // Create cartesian start pose interactive marker
-  imarker_cartesian_.reset(
-                           new IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_, rvt::BLUE, parent_->package_path_));
+  imarker_cartesian_.reset(new IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_,
+                                                 rvt::BLUE, parent_->package_path_));
   imarker_cartesian_->setIMarkerCallback(
       std::bind(&CartPathPlanner::processIMarkerPose, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -95,8 +95,7 @@ bool CartPathPlanner::visualizeDescartesCartPath(const Eigen::Affine3d& start_po
   ROS_DEBUG_STREAM_NAMED(name_, "visualizeDescartesCartPath()");
 
   // generating trajectory
-  curie_demos::DescartesTrajectory traj;
-  generateCartTrajectory(traj, start_pose);
+  generateCartTrajectory(start_pose);
 
   return true;
 }
@@ -107,8 +106,8 @@ bool CartPathPlanner::generateCartGraph()
   Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
 
   // Generating trajectory
-  curie_demos::DescartesTrajectory traj;
-  if (!generateCartTrajectory(traj, start_pose))
+  bool debug = true;
+  if (!generateCartTrajectory(start_pose, debug))
   {
     ROS_ERROR_STREAM_NAMED(name_, "Failed to generate full cart trajectory at current position");
     return false;
@@ -121,13 +120,19 @@ bool CartPathPlanner::generateCartGraph()
 
   // ------------------------------------------------------------------
   // Create the Descartes planning graph
-  if (!planner_.insertGraph(traj))
+  if (!planner_.insertGraph(cart_traj_))
   {
-    return false;
+    ROS_ERROR_STREAM_NAMED(name_, "Failed to create Descarrtes graph for trajectory");
+
+    // Run again in debug mode
+    bool debug = true;
+    if (!generateCartTrajectory(start_pose, debug))
+      return false;
   }
 
   double duration = (ros::Time::now() - start_time).toSec();
-  ROS_INFO_STREAM_NAMED(name_, "Descartes graph generated in " << duration << " seconds with " << boost::num_vertices(pg.getGraph()) << " vertices");
+  ROS_INFO_STREAM_NAMED(name_, "Descartes graph generated in " << duration << " seconds with "
+                                                               << boost::num_vertices(pg.getGraph()) << " vertices");
   std::cout << std::endl;
 
   return true;
@@ -143,7 +148,7 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   using namespace descartes_trajectory;
 
   // Remove any previous Cartesian vertices/edges
-  task_graph->clearCartesianVertices(indent);
+  task_graph->generateTaskSpace(indent);
 
   ROS_INFO_STREAM_NAMED(name_, "Converting Descartes graph to Bolt graph");
 
@@ -156,7 +161,7 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   std::map<JointGraph::vertex_descriptor, ompl::tools::bolt::TaskVertex> descarteToBoltVertex;
 
   ompl::tools::bolt::TaskVertex startingVertex = task_graph->getNumVertices() - 1;
-  (void)startingVertex; // prevent unused variable warning
+  (void)startingVertex;  // prevent unused variable warning
   std::size_t new_vertex_count = 0;
   const ompl::tools::bolt::VertexType vertex_type = ompl::tools::bolt::CARTESIAN;
   const ompl::tools::bolt::VertexLevel level = 1;  // middle layer
@@ -198,8 +203,8 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
     new_vertex_count++;
   }
   ompl::tools::bolt::TaskVertex endingVertex = task_graph->getNumVertices() - 1;
-  (void)endingVertex; // prevent unused variable warning
-  ROS_DEBUG_STREAM_NAMED(name_, "Added " << new_vertex_count << " new vertices");
+  (void)endingVertex;  // prevent unused variable warning
+  ROS_INFO_STREAM_NAMED(name_, "Added " << new_vertex_count << " new vertices");
 
   // Iterate through edges
   std::size_t new_edge_count = 0;
@@ -214,7 +219,6 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
     const ompl::tools::bolt::TaskVertex v2 = descarteToBoltVertex.at(jv2);
     BOOST_ASSERT_MSG(v1 > startingVertex && v1 <= endingVertex, "Attempting to create edge with out of range vertex");
     BOOST_ASSERT_MSG(v2 > startingVertex && v2 <= endingVertex, "Attempting to create edge with out of range vertex");
-
 
     task_graph->addEdge(v1, v2, edge_type, indent);
 
@@ -234,7 +238,7 @@ bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPt
   double shortest_path_across_cart = std::numeric_limits<double>::infinity();
 
   // force visualization
-  //task_graph->visualizeTaskGraph_ = true;
+  // task_graph->visualizeTaskGraph_ = true;
 
   // Loop through all start points
   ROS_INFO_STREAM_NAMED(name_, "Connecting Descartes start points to TaskGraph");
@@ -310,11 +314,11 @@ void CartPathPlanner::initDescartes()
   const std::string prefix = "right_";
   ur5_robot_model_.reset(new ur5_demo_descartes::UR5RobotModel(prefix));
 
-
-  //ur5_demo_descartes::UR5RobotModel ur5_robot_model_;
+  // ur5_demo_descartes::UR5RobotModel ur5_robot_model_;
 
   // Initialize
-  if (ur5_robot_model_->initialize(visual_tools_->getSharedRobotState()->getRobotModel(), config_.group_name, config_.world_frame, config_.tip_link))
+  if (ur5_robot_model_->initialize(visual_tools_->getSharedRobotState()->getRobotModel(), config_.group_name,
+                                   config_.world_frame, config_.tip_link))
   {
     ROS_INFO_STREAM("Descartes Robot Model initialized");
   }
@@ -359,126 +363,7 @@ void CartPathPlanner::loadParameters()
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/radius", config_.radius);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/num_points", config_.num_points);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/num_lemniscates", config_.num_lemniscates);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/center", config_.center);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory/seed_pose", config_.seed_pose);
-  error += !rosparam_shortcuts::get(name_, rpnh, "visualization/min_point_distance", config_.min_point_distance);
-  error += !rosparam_shortcuts::get(name_, rpnh, "controller_joint_names", config_.joint_names);
   rosparam_shortcuts::shutdownIfError(name_, error);
-}
-
-moveit_msgs::RobotTrajectory CartPathPlanner::runPath(const DescartesTrajectory& path)
-{
-  ROS_INFO_STREAM_NAMED(name_, "runPath()");
-
-  std::vector<double> seed_pose(ur5_robot_model_->getDOF());
-  std::vector<double> start_pose;
-
-  descartes_core::TrajectoryPtPtr first_point_ptr = path[0];
-  first_point_ptr->getNominalJointPose(seed_pose, *ur5_robot_model_, start_pose);
-
-  // creating Moveit trajectory from Descartes Trajectory
-  moveit_msgs::RobotTrajectory moveit_traj;
-  fromDescartesToMoveitTraj(path, moveit_traj.joint_trajectory);
-
-  // sending robot path to server for execution
-  return moveit_traj;
-}
-
-void CartPathPlanner::publishPosesMarkers(const EigenSTL::vector_Affine3d& poses)
-{
-  ROS_DEBUG_STREAM_NAMED(name_, "publishPosesMarkers() world_frame: " << visual_tools_->getBaseFrame());
-
-  // creating rviz markers
-  visualization_msgs::Marker z_axes, y_axes, x_axes, line;
-  visualization_msgs::MarkerArray markers_msg;
-
-  z_axes.type = y_axes.type = x_axes.type = visualization_msgs::Marker::LINE_LIST;
-  z_axes.ns = y_axes.ns = x_axes.ns = "axes";
-  z_axes.action = y_axes.action = x_axes.action = visualization_msgs::Marker::ADD;
-  z_axes.lifetime = y_axes.lifetime = x_axes.lifetime = ros::Duration(0);
-  z_axes.header.frame_id = y_axes.header.frame_id = x_axes.header.frame_id = visual_tools_->getBaseFrame();
-  z_axes.scale.x = y_axes.scale.x = x_axes.scale.x = AXIS_LINE_WIDTH;
-
-  // z properties
-  z_axes.id = 0;
-  z_axes.color.r = 0;
-  z_axes.color.g = 0;
-  z_axes.color.b = 1;
-  z_axes.color.a = 1;
-
-  // y properties
-  y_axes.id = 1;
-  y_axes.color.r = 0;
-  y_axes.color.g = 1;
-  y_axes.color.b = 0;
-  y_axes.color.a = 1;
-
-  // x properties
-  x_axes.id = 2;
-  x_axes.color.r = 1;
-  x_axes.color.g = 0;
-  x_axes.color.b = 0;
-  x_axes.color.a = 1;
-
-  // line properties
-  line.type = visualization_msgs::Marker::LINE_STRIP;
-  line.ns = "line";
-  line.action = visualization_msgs::Marker::ADD;
-  line.lifetime = ros::Duration(0);
-  line.header.frame_id = visual_tools_->getBaseFrame();
-  line.scale.x = LINE_WIDTH;
-  line.id = 0;
-  line.color.r = 1;
-  line.color.g = 1;
-  line.color.b = 0;
-  line.color.a = 1;
-
-  // creating axes markers
-  z_axes.points.reserve(2 * poses.size());
-  y_axes.points.reserve(2 * poses.size());
-  x_axes.points.reserve(2 * poses.size());
-  line.points.reserve(poses.size());
-  geometry_msgs::Point p_start, p_end;
-  double distance = 0;
-  Eigen::Affine3d prev = poses[0];
-  for (unsigned int i = 0; i < poses.size(); i++)
-  {
-    const Eigen::Affine3d& pose = poses[i];
-    distance = (pose.translation() - prev.translation()).norm();
-
-    tf::pointEigenToMsg(pose.translation(), p_start);
-
-    if (distance > config_.min_point_distance)
-    {
-      Eigen::Affine3d moved_along_x = pose * Eigen::Translation3d(AXIS_LINE_LENGTH, 0, 0);
-      tf::pointEigenToMsg(moved_along_x.translation(), p_end);
-      x_axes.points.push_back(p_start);
-      x_axes.points.push_back(p_end);
-
-      Eigen::Affine3d moved_along_y = pose * Eigen::Translation3d(0, AXIS_LINE_LENGTH, 0);
-      tf::pointEigenToMsg(moved_along_y.translation(), p_end);
-      y_axes.points.push_back(p_start);
-      y_axes.points.push_back(p_end);
-
-      Eigen::Affine3d moved_along_z = pose * Eigen::Translation3d(0, 0, AXIS_LINE_LENGTH);
-      tf::pointEigenToMsg(moved_along_z.translation(), p_end);
-      z_axes.points.push_back(p_start);
-      z_axes.points.push_back(p_end);
-
-      // saving previous
-      prev = pose;
-    }
-
-    line.points.push_back(p_start);
-  }
-
-  markers_msg.markers.push_back(x_axes);
-  markers_msg.markers.push_back(y_axes);
-  markers_msg.markers.push_back(z_axes);
-  markers_msg.markers.push_back(line);
-
-  visual_tools_->publishMarkers(markers_msg);
-  visual_tools_->triggerBatchPublish();
 }
 
 bool CartPathPlanner::createLemniscateCurve(double foci_distance, double sphere_radius, int num_points,
@@ -567,164 +452,282 @@ bool CartPathPlanner::createLemniscateCurve(double foci_distance, double sphere_
   return true;
 }
 
-void CartPathPlanner::fromDescartesToMoveitTraj(const DescartesTrajectory& in_traj,
-                                                trajectory_msgs::JointTrajectory& out_traj)
+bool CartPathPlanner::createDrawing(const Eigen::Vector3d& starting_point, EigenSTL::vector_Affine3d& poses)
 {
-  ROS_INFO_STREAM_NAMED(name_, "fromDescartesToMoveitTraj()");
+  ROS_DEBUG_STREAM_NAMED(name_, "createDrawing()");
 
-  // Fill out information about our trajectory
-  out_traj.header.stamp = ros::Time::now();
-  out_traj.header.frame_id = config_.world_frame;
-  out_traj.joint_names = config_.joint_names;
+  poses.clear();
 
-  // For keeping track of time-so-far in the trajectory
-  double time_offset = 0.0;
+  Eigen::Affine3d start_pose = Eigen::Affine3d::Identity();
+  start_pose.translation() = starting_point;
 
-  // Loop through the trajectory
-  for (unsigned int i = 0; i < in_traj.size(); i++)
+  // Rotate 90 so that the x axis points down
+  start_pose = start_pose * Eigen::AngleAxisd(M_PI / 2.0, Eigen::Vector3d::UnitY());
+  // Rotate -
+  // start_pose = start_pose * Eigen::AngleAxisd(-M_PI / 2.0, Eigen::Vector3d::UnitY());
+
+  poses.push_back(start_pose);
+
+  const double distance = config_.foci_distance;
+  const std::size_t increments = config_.num_points;
+  const double step = distance / static_cast<double>(increments);
+  Eigen::Affine3d end_pose = start_pose;
+  for (std::size_t i = 0; i < increments; ++i)
   {
-    // Find nominal joint solution at this point
-    std::vector<double> joints;
-
-    // getting joint position at current point
-    const descartes_core::TrajectoryPtPtr& joint_point = in_traj[i];
-    joint_point->getNominalJointPose(std::vector<double>(), *ur5_robot_model_, joints);
-
-    // Fill out a ROS trajectory point
-    trajectory_msgs::JointTrajectoryPoint pt;
-    pt.positions = joints;
-    // velocity, acceleration, and effort are given dummy values
-    // we'll let the controller figure them out
-    pt.velocities.resize(joints.size(), 0.0);
-    pt.accelerations.resize(joints.size(), 0.0);
-    pt.effort.resize(joints.size(), 0.0);
-    // set the time into the trajectory
-    pt.time_from_start = ros::Duration(time_offset);
-    // increment time
-    time_offset += config_.time_delay;
-
-    out_traj.points.push_back(pt);
+    end_pose.translation().x() += step;
+    poses.push_back(end_pose);
   }
+
+  return true;
 }
 
-void CartPathPlanner::fromDescartesToMoveitTraj(const DescartesTrajectory& in_traj,
-                                                std::vector<moveit::core::RobotStatePtr>& out_traj)
-{
-  ROS_INFO_STREAM_NAMED(name_, "fromDescartesToMoveitTraj()");
-
-  BOOST_ASSERT_MSG(!in_traj.empty(), "Input trajectory is empty!");
-
-  // Loop through the trajectory
-  for (unsigned int i = 0; i < in_traj.size(); i++)
-  {
-    // Find nominal joint solution at this point
-    std::vector<double> joints;
-
-    // getting joint position at current point
-    const descartes_core::TrajectoryPtPtr& joint_point = in_traj[i];
-    joint_point->getNominalJointPose(std::vector<double>(), *ur5_robot_model_, joints);
-
-    // Create new robot state
-    moveit::core::RobotStatePtr moveit_robot_state(new moveit::core::RobotState(*visual_tools_->getSharedRobotState()));
-    moveit_robot_state->setJointGroupPositions(jmg_, joints);
-
-    // Add to trajectory
-    out_traj.push_back(moveit_robot_state);
-  }
-}
-
-bool CartPathPlanner::generateCartTrajectory(DescartesTrajectory& traj, const Eigen::Affine3d& start_pose)
+bool CartPathPlanner::generateCartTrajectory(const Eigen::Affine3d& start_pose, bool debug)
 {
   ROS_DEBUG_STREAM_NAMED(name_, "generateCartTrajectory()");
+  if (debug)
+    ROS_WARN_STREAM_NAMED(name_, "Running in debug mode");
 
-  using namespace descartes_core;
-  using namespace descartes_trajectory;
+  EigenSTL::vector_Affine3d exact_poses;
 
-  // generating trajectory using a lemniscate curve function.
-  EigenSTL::vector_Affine3d poses;
-
-  // Eigen::Vector3d sphere_center(config_.center[0], config_.center[1], config_.center[2]);
   Eigen::Vector3d sphere_center = start_pose.translation();
-  sphere_center.z() -= 0.1;  // move center down a bit from end effector
+  sphere_center.z() -= 0.05;  // move center down a bit from end effector TODO(davetcoleman): remove hack
 
-  if (createLemniscateCurve(config_.foci_distance, config_.radius, config_.num_points, config_.num_lemniscates,
-                            sphere_center, poses))
-  {
-    ROS_DEBUG_STREAM_NAMED(name_, "Trajectory with " << poses.size() << " points was generated");
-  }
-  else
+  // if (createLemniscateCurve(config_.foci_distance, config_.radius, config_.num_points, config_.num_lemniscates,
+  //                           sphere_center, exact_poses))
+  if (!createDrawing(sphere_center, exact_poses))
   {
     ROS_ERROR_STREAM_NAMED(name_, "Trajectory generation failed");
     exit(-1);
   }
 
-  // TODO(davetcoleman): remove
-  if (false)
+  ROS_DEBUG_STREAM_NAMED(name_, "Trajectory with " << exact_poses.size() << " points was generated");
+
+  // Publish trajectory poses for visualization
+  visual_tools_->deleteAllMarkers();
+  visual_tools_->publishPath(exact_poses, rvt::ORANGE, rvt::XXSMALL);
+  visual_tools_->publishAxisPath(exact_poses, rvt::XXXSMALL);
+  visual_tools_->triggerBatchPublish();
+
+  // return useDescartesToGetPoses(exact_poses, debug);
+
+  // Specify tolerance
+  OrientationTol orientation_tol(M_PI, M_PI / 10, M_PI / 10);
+
+  if (debug)
+    debugShowAllIKSolutions(exact_poses, orientation_tol);
+
+  return true;
+}
+
+bool CartPathPlanner::useDescartesToGetPoses(EigenSTL::vector_Affine3d exact_poses, bool debug)
+{
+  using namespace descartes_core;
+  using namespace descartes_trajectory;
+
+  // Create descartes trajectory points
+  cart_traj_.clear();
+  cart_traj_.reserve(exact_poses.size());
+  for (unsigned int i = 0; i < exact_poses.size(); i++)
   {
-    // Remove most of trajectory just to save time
-    std::size_t use_first_count = 50;  // only save the front of the vector
-    ROS_DEBUG_STREAM_NAMED(name_, "Truncating trajectory to size " << use_first_count
-                           << " reduce computation time during "
-                           "testing");
-    poses.erase(poses.begin() + use_first_count, poses.end());
+    // Use AxialSymetricPt objects to allow a trajectory cartesian point with rotational freedom about the tool's z axis
+    using namespace descartes_core;
+    cart_traj_.push_back(TrajectoryPtPtr(new descartes_trajectory::AxialSymmetricPt(
+        exact_poses[i], orientation_increment_, descartes_trajectory::AxialSymmetricPt::FreeAxis::Z_AXIS,
+        TimingConstraint(0.5))));
+
+    // X_AXIS - rotates around orange line
+    // Y_AXIS - rotates long ways around orange line
+    // Z_AXIS - rotates around orange line
   }
 
-  // publishing trajectory poses for visualization
-  publishPosesMarkers(poses);
-
-  // creating descartes trajectory points
-  traj.clear();
-  traj.reserve(poses.size());
-  for (unsigned int i = 0; i < poses.size(); i++)
+  if (debug)
   {
-    const Eigen::Affine3d& pose = poses[i];
-
-    /*
-    // Get all possible solutions
-    std::vector<std::vector<double> > joint_poses;
-    if (!ur5_robot_model_->getAllIK(pose, joint_poses))
+    // Enumerate the potential points
+    // for (descartes_core::TrajectoryPtPtr cart_point : cart_traj_)
+    for (std::size_t i = 0; i < cart_traj_.size(); ++i)
     {
-      ROS_ERROR_STREAM_NAMED(name_, "getAllIK returned false for pose " << i);
-      return false;
+      descartes_core::TrajectoryPtPtr cart_point = cart_traj_[i];
+      Eigen::Affine3d& pose = exact_poses[i];
+
+      // Compute all poses for each pose
+      EigenSTL::vector_Affine3d poses;
+      if (!dynamic_cast<CartTrajectoryPt*>(cart_point.get())->computeCartesianPoses(poses))
+      {
+        ROS_ERROR("Failed for find ANY cartesian poses");
+        return false;
+      }
+
+      for (const auto& pose : poses)
+      {
+        visual_tools_->publishAxis(pose);
+      }
+
+      std::vector<std::vector<double>> joint_poses;
+      cart_point->getJointPoses(*ur5_robot_model_, joint_poses);
+
+      if (joint_poses.empty())
+      {
+        ROS_ERROR_STREAM_NAMED(name_, "No joint solutions found for pose " << i);
+
+        visual_tools_->publishAxis(pose, rvt::XXSMALL);
+        visual_tools_->triggerBatchPublish();
+
+        // Show previous joint poses
+        if (i > 0)
+        {
+          ROS_INFO_STREAM_NAMED(name_, "Showing last valid robot state in red");
+          descartes_core::TrajectoryPtPtr cart_point = cart_traj_[i - 1];
+
+          std::vector<std::vector<double>> joint_poses;
+          cart_point->getJointPoses(*ur5_robot_model_, joint_poses);
+          visual_tools_->publishRobotState(joint_poses.front(), jmg_, rvt::RED);
+        }
+
+        return false;
+      }
+
+      // Show first configuration
+      if (false)
+      {
+        visual_tools_->publishRobotState(joint_poses.front(), jmg_);
+        ros::Duration(0.1).sleep();
+      }
+
+      // Show all possible configurations
+      if (true)
+      {
+        for (std::vector<double> pose : joint_poses)
+        {
+          visual_tools_->publishRobotState(pose, jmg_);
+          ros::Duration(0.1).sleep();
+
+          if (!ros::ok())
+            exit(0);
+        }
+      }
+
+      visual_tools_->publishAxis(pose, rvt::XXXXSMALL);
+      visual_tools_->triggerBatchPublish();
+    }
+  }
+
+  // ROS_INFO_STREAM_NAMED(name_, "getAllIK found all solutions for trajectory");
+  return true;
+}
+
+bool CartPathPlanner::debugShowAllIKSolutions(const EigenSTL::vector_Affine3d& exact_poses,
+                                              const OrientationTol& orientation_tol)
+{
+  // Enumerate the potential poses within tolerance
+  for (std::size_t i = 0; i < exact_poses.size(); ++i)
+  {
+    const Eigen::Affine3d& pose = exact_poses[i];
+
+    EigenSTL::vector_Affine3d candidate_poses;
+    computeAllPoses(pose, orientation_tol, candidate_poses);
+
+    std::vector<std::vector<double>> joint_poses;
+    for (const Eigen::Affine3d& candidate_pose : candidate_poses)
+    {
+      std::vector<std::vector<double>> local_joint_poses;
+      if (ur5_robot_model_->getAllIK(candidate_pose, local_joint_poses))
+      {
+        joint_poses.insert(joint_poses.end(), local_joint_poses.begin(), local_joint_poses.end());
+      }
     }
 
-    // Error check
+    // Handle error: no IK solutions found
     if (joint_poses.empty())
     {
-      ROS_ERROR_STREAM_NAMED(name_, "getAllIK returned no solutions");
+      ROS_ERROR_STREAM_NAMED(name_, "No joint solutions found for pose " << i);
+
+      visual_tools_->publishAxis(pose, rvt::XXSMALL);
+      visual_tools_->triggerBatchPublish();
+
       return false;
     }
 
     // Show all possible configurations
-    if (false)
+    if (true)
     {
-      for (std::vector<double> pose : joint_poses)
+      for (std::vector<double> joint_pose : joint_poses)
       {
-        visual_tools_->publishRobotState(pose, jmg_);
-        ros::Duration(0.001).sleep();
+        visual_tools_->publishRobotState(joint_pose, jmg_);
+        //ros::Duration(0.1).sleep();
 
         if (!ros::ok())
           exit(0);
-
-        break;  // do not show all possible configs
       }
     }
-    */
 
-    // Create AxialSymetricPt objects in order to define a trajectory cartesian point with rotational freedom about the
-    // tool's z axis.
+  }
+
+  return true;
+}
+
+bool CartPathPlanner::computeAllPoses(const Eigen::Affine3d& pose, const OrientationTol& orientation_tol,
+                                      EigenSTL::vector_Affine3d& candidate_poses)
+{
+  BOOST_ASSERT_MSG(orientation_increment_ != 0, "Divide by zero using orientation increment");
+
+  const std::size_t num_axis = 3;
+
+  // Reserve vector size
+  std::vector<size_t> num_steps_per_axis(num_axis, 0 /* value */);
+  for (std::size_t i = 0; i < num_axis; ++i)
+  {
+    double range = 2 * orientation_tol.axis_dist_from_center_[i];
+    num_steps_per_axis[i] = std::max(1.0, ceil(range / orientation_increment_));
+  }
+  double total_num_steps = num_steps_per_axis[0] * num_steps_per_axis[1] * num_steps_per_axis[2];
+  std::cout << "Reserving space for " << total_num_steps << " poses" << std::endl;
+  candidate_poses.reserve(total_num_steps);
+
+  // Start recursion
+  return rotateOnAxis(pose, orientation_tol, X_AXIS, candidate_poses);
+}
+
+bool CartPathPlanner::rotateOnAxis(const Eigen::Affine3d& pose, const OrientationTol& orientation_tol,
+                                         const Axis axis, EigenSTL::vector_Affine3d& candidate_poses)
+{
+  const bool verbose = false;
+  double range = 2 * orientation_tol.axis_dist_from_center_[axis];
+  std::size_t num_steps = std::max(1.0, ceil(range / orientation_increment_));
+  Eigen::Affine3d new_pose;
+
+  // Rotate all around one axis
+  for (int i = num_steps * -0.5; i < num_steps * 0.5; ++i)
+  {
+    double rotation_amount = i * orientation_increment_;
+    if (verbose)
+      std::cout << std::string(axis * 2, ' ') << "axis: " << axis << " i: " << i
+                << " rotation_amount: " << rotation_amount << " num_steps: " << num_steps << std::endl;
+
+    // clang-format off
+    switch (axis)
     {
-      using namespace descartes_core;
-      TrajectoryPtPtr pt = TrajectoryPtPtr(new descartes_trajectory::AxialSymmetricPt(
-          pose, orientation_increment_, descartes_trajectory::AxialSymmetricPt::FreeAxis::Z_AXIS,
-          TimingConstraint(0.5)));
-      // saving points into trajectory
-      traj.push_back(pt);
+      case X_AXIS: new_pose = pose * Eigen::AngleAxisd(rotation_amount, Eigen::Vector3d::UnitX()); break;
+      case Y_AXIS: new_pose = pose * Eigen::AngleAxisd(rotation_amount, Eigen::Vector3d::UnitY()); break;
+      case Z_AXIS: new_pose = pose * Eigen::AngleAxisd(rotation_amount, Eigen::Vector3d::UnitZ()); break;
+      default: ROS_ERROR_STREAM_NAMED(name_, "Unknown axis");
+    }
+    // clang-format on
+
+    // Recursively rotate
+    if (axis < Z_AXIS)
+    {
+      rotateOnAxis(new_pose, orientation_tol, static_cast<Axis>(axis + 1), candidate_poses);
+    }
+    else
+    {
+      candidate_poses.push_back(new_pose);
+      // visual_tools_->publishZArrow(new_pose, rvt::BLUE, rvt::XXXSMALL);
+      visual_tools_->publishAxis(new_pose, rvt::XXXSMALL);
     }
   }
 
-  //ROS_INFO_STREAM_NAMED(name_, "getAllIK found all solutions for trajectory");
   return true;
 }
+
 
 }  // namespace curie_demos
