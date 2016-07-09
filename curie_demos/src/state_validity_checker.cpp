@@ -81,7 +81,7 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
   // check bounds
   if (!si_->satisfiesBounds(state))
   {
-    if (verbose || checking_enabled_)
+    if (verbose)
       ROS_INFO("State outside bounds");
     return false;
   }
@@ -89,6 +89,7 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
   // Debugging mode that always says state is collision free
   if (!checking_enabled_)
   {
+    std::cout << "skipping: " << std::endl;
     return true;
   }
 
@@ -123,7 +124,7 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
 {
   if (!si_->satisfiesBounds(state))
   {
-    if (verbose || checking_enabled_)
+    if (verbose)
       ROS_INFO("State outside bounds");
     return false;
   }
@@ -132,6 +133,7 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
   if (!checking_enabled_)
   {
     dist = std::numeric_limits<double>::infinity();
+    std::cout << "skipping: " << std::endl;
     return true;
   }
 
@@ -191,4 +193,16 @@ double moveit_ompl::StateValidityChecker::clearance(const ompl::base::State *sta
   collision_detection::CollisionResult res;
   planning_scene_->checkCollision(collision_request_with_distance_, res, *robot_state);
   return res.collision ? 0.0 : (res.distance < 0.0 ? std::numeric_limits<double>::infinity() : res.distance);
+}
+
+void moveit_ompl::StateValidityChecker::setCheckingEnabled(const bool& checking_enabled)
+{
+  checking_enabled_ = checking_enabled;
+
+  if (!checking_enabled_)
+  {
+    ROS_WARN_STREAM_NAMED(group_name_, "StateValidityChecker collision checking is DISABLED");
+  }
+  else
+    ROS_INFO_STREAM_NAMED(group_name_, "StateValidityChecker collision checking is enabled");
 }

@@ -5,12 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Grid1/Offset1
-        - /Viz1to61
-        - /Viz1to61/RobotState3/Links1
-        - /Trajectory1
         - /PlanningScene1/Scene Geometry1
         - /PlanningScene1/Scene Robot1
-        - /InteractiveMarkers1
         - /TF1/Frames1
       Splitter Ratio: 0.561969
     Tree Height: 770
@@ -1023,7 +1019,7 @@ Visualization Manager:
         - Attached Body Color: 150; 50; 150
           Class: moveit_rviz_plugin/RobotState
           Collision Enabled: false
-          Enabled: true
+          Enabled: false
           Links:
             All Links Enabled: true
             Expand Joint Details: false
@@ -1253,7 +1249,7 @@ Visualization Manager:
           Robot State Topic: /hilgendorf/robot_state5
           Show All Links: true
           Show Highlights: true
-          Value: true
+          Value: false
           Visual Enabled: true
         - Class: rviz/MarkerArray
           Enabled: true
@@ -2725,8 +2721,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/cartesian_trajectory
           Name: Cart
           Namespaces:
-            Axis Path: true
-            Cylinder: true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -2746,15 +2741,15 @@ Visualization Manager:
       Update Interval: 0
       Value: false
     - Class: rviz/Axes
-      Enabled: true
+      Enabled: false
       Length: 1
       Name: Axes
       Radius: 0.1
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
-    Background Color: 45; 53; 53
+    Background Color: 170; 255; 255
     Fixed Frame: world
     Frame Rate: 30
   Name: root
@@ -2766,22 +2761,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.72024
+      Distance: 2.71401
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.688531
-        Y: -0.744181
-        Z: -6.4115e-07
+        X: 0.261819
+        Y: -0.57441
+        Z: -1.34896e-06
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.524797
+      Pitch: 0.224794
       Target Frame: robot_table_link
       Value: XYOrbit (rviz)
-      Yaw: 5.87824
+      Yaw: 5.83187
     Saved: ~
 Window Geometry:
   Displays:

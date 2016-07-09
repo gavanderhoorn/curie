@@ -14,7 +14,7 @@ curie_demos:
 
   # run type
   headless: false
-  planning_runs: 1
+  planning_runs: 10
   problem_type: 1 # 0 - random, 1 - imarkers
   auto_run: false # do not wait to move interactive markers. note: 'autonomous' setting must be 'false'
   experience_planner: bolt
@@ -153,21 +153,11 @@ cart_path_planner:
   tip_link: right_gripper_target
   base_link: base_link
   world_frame: base_link # TODO it bothers me this is required
-  check_collisions: false
-  orientation_increment: 0.1 # in radians, discretization of space [-Pi, Pi]
-  # trajectory:
-  #   time_delay: 0.1
-  #   foci_distance: 0.07
-  #   radius: 0.097
-  #   num_points: 200
-  #   num_lemniscates: 4
-  #   center: [0.6, -0.5, 0.2] # location of center of lemniscarte curve from world_frame
-  trajectory: # Draw Line:
-    time_delay: 0.1
-    num_points: 100
-    foci_distance: 0.5
-    radius: 0.097 #unused
-    num_lemniscates: 4 #unused
+  descartes_check_collisions: false
+  orientation_increment: 1 # in radians, discretization of space [-Pi, Pi]
+  trajectory_discretization: 0.01 # how much space, in meters, between trajectory points
+  trajectory_distance: 1.1 # distance to create trajectory
+  timing: 0.5 # time between each Cartesian point, e.g. discretization
 
 # ====================================================
 # Interface for publishing joint/cartesian commands to the low level controllers

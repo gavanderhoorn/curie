@@ -61,54 +61,10 @@
 
 // this package
 #include <curie_demos/imarker_robot_state.h>
+#include <curie_demos/tolerances.h>
 
 namespace curie_demos
 {
-const double SERVICE_TIMEOUT = 5.0f;  // seconds
-const double EPSILON = 0.0001f;
-const double AXIS_LINE_LENGTH = 0.01;
-const double AXIS_LINE_WIDTH = 0.001;
-const double LINE_WIDTH = 0.005;
-
-/*
- * Holds the data used at various points in the application.  This structure is populated
- * from data found in the ros parameter server at runtime.
- */
-struct DemoConfiguration
-{
-  std::string group_name;  /* Name of the manipulation group containing the relevant links in the robot */
-  std::string tip_link;    /* Usually the last link in the kinematic chain of the robot */
-  std::string base_link;   /* The name of the base link of the robot */
-  std::string world_frame; /* The name of the world link in the URDF file */
-
-  /* Trajectory Generation Members:
-   *  Used to control the attributes (points, shape, size, etc) of the robot trajectory.
-   *  */
-  double time_delay;    /* Time step between consecutive points in the robot path */
-  double foci_distance; /* Controls the size of the curve */
-  double radius;        /* Controls the radius of the sphere on which the curve is projected */
-  int num_points;       /* Number of points per curve */
-  int num_lemniscates;  /* Number of curves*/
-};
-
-enum Axis
-{
-  X_AXIS,
-  Y_AXIS,
-  Z_AXIS
-};
-
-struct OrientationTol
-{
-  OrientationTol(double roll_tol, double pitch_tol, double yaw_tol)
-  {
-    axis_dist_from_center_.push_back(roll_tol);
-    axis_dist_from_center_.push_back(pitch_tol);
-    axis_dist_from_center_.push_back(yaw_tol);
-  }
-
-  std::vector<double> axis_dist_from_center_;
-};
 
 class CurieDemos;
 
@@ -120,28 +76,28 @@ public:
    */
   CartPathPlanner(CurieDemos* parent);
 
+  void initDescartes();
+
   void processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback,
                           const Eigen::Affine3d& feedback_pose);
 
-  bool visualizeDescartesCartPath(const Eigen::Affine3d& start_pose);
+  bool generateExactPoses(const Eigen::Affine3d& start_pose, bool debug = false);
 
-  bool generateCartGraph();
-  bool convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph);
-
-  void loadParameters();
-  void initDescartes();
-  bool createLemniscateCurve(double foci_distance, double sphere_radius, int num_points, int num_lemniscates,
-                             const Eigen::Vector3d& sphere_center, EigenSTL::vector_Affine3d& poses);
-  bool createDrawing(const Eigen::Vector3d& starting_point, EigenSTL::vector_Affine3d& poses);
-
-  bool generateCartTrajectory(const Eigen::Affine3d& start_pose, bool debug = false);
-  bool useDescartesToGetPoses(EigenSTL::vector_Affine3d exact_poses, bool debug);
-
-  bool debugShowAllIKSolutions(const EigenSTL::vector_Affine3d& exact_poses, const OrientationTol& orientation_tol);
+  bool debugShowAllIKSolutions();
   bool computeAllPoses(const Eigen::Affine3d& pose, const OrientationTol& orientation_tol,
                        EigenSTL::vector_Affine3d& candidate_poses);
   bool rotateOnAxis(const Eigen::Affine3d& pose, const OrientationTol& orientation_tol, const Axis axis,
                     EigenSTL::vector_Affine3d& candidate_poses);
+  bool createDrawing(const Eigen::Vector3d& starting_point, EigenSTL::vector_Affine3d& poses);
+  bool populateBoltGraph(ompl::tools::bolt::TaskGraphPtr task_graph);
+  bool addCartPointToBoltGraph(const std::vector<std::vector<double>>& joint_poses,
+                                     std::vector<ompl::tools::bolt::TaskVertex>& point_vertices,
+                                     moveit::core::RobotStatePtr moveit_robot_state);
+  bool addEdgesToBoltGraph(const TrajectoryGraph& graph_vertices, ompl::tools::bolt::TaskVertex startingVertex,
+                           ompl::tools::bolt::TaskVertex endingVertex);
+  bool connectTrajectoryEndPoints(const TrajectoryGraph& graph_vertices, double& shortest_path_across_cart);
+  bool getAllJointPosesForCartPoint(const Eigen::Affine3d& pose, std::vector<std::vector<double>> &joint_poses);
+  void visualizeAllJointPoses(const std::vector<std::vector<double>>& joint_poses);
 
 private:
   // --------------------------------------------------------
@@ -155,6 +111,9 @@ private:
   // Parent class
   CurieDemos* parent_;
 
+  // The main graph
+  ompl::tools::bolt::TaskGraphPtr task_graph_;
+
   // State
   moveit::core::RobotStatePtr imarker_state_;
 
@@ -164,26 +123,31 @@ private:
   // Interactive markers
   IMarkerRobotStatePtr imarker_cartesian_;
 
-  // Holds the data used by the various functions in the application.
-  DemoConfiguration config_;
-
   // The planning group to work on
   const moveit::core::JointModelGroup* jmg_;
 
-  // Performs tasks specific to the Robot such IK, FK and collision detection*/
+  // Performs tasks specific to the Robot such IK, FK and collision detection
   ur5_demo_descartes::UR5RobotModelPtr ur5_robot_model_;
 
-  // Plans a smooth robot path given a trajectory of points
-  // descartes_planner::SparsePlanner planner_;
-  descartes_planner::DensePlanner planner_;
-
-  // Trajectory that Descartes will plan for
-  std::vector<descartes_core::TrajectoryPtPtr> cart_traj_;
+  // The exact trajectory to follow
+  EigenSTL::vector_Affine3d exact_poses_;
+  // The trajectory's associated tolernaces
+  OrientationTol orientation_tol_;
+  // Timing between each pose in exact_poses
+  double timing_;
 
   // User settings
-  bool check_collisions_;
+  bool descartes_check_collisions_;
 
   double orientation_increment_ = 0.5;
+
+  // Robot settings
+  std::string group_name_;
+  std::string tip_link_;
+  std::string base_link_;
+  std::string world_frame_;
+  double trajectory_distance_;
+  double trajectory_discretization_;
 
 };  // end class
 

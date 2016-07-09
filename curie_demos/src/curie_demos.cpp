@@ -136,7 +136,7 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_p
   loadVisualTools();
 
   // Add a collision objects
-  visual_moveit_start_->publishCollisionFloor(0.001, "floor", rvt::TRANSLUCENT);
+  visual_moveit_start_->publishCollisionFloor(0.001, "floor", rvt::TRANSLUCENT_DARK);
   visual_moveit_start_->publishCollisionWall(-0.5, 0.0, 0, 2, 1.5, "wall", rvt::BLACK);
   visual_moveit_start_->triggerPlanningSceneUpdate();
   ros::spinOnce();
@@ -346,9 +346,6 @@ bool CurieDemos::runProblems()
     logging_file.open(file_path.c_str(), std::ios::out);  // no append | std::ios::app);
   }
 
-  if (visualize_wait_between_plans_)  // Wait for first
-    waitForNextStep("run first problem");
-
   // Run the demo the desired number of times
   for (std::size_t run_id = 0; run_id < planning_runs_; ++run_id)
   {
@@ -385,8 +382,6 @@ bool CurieDemos::runProblems()
         exit(-1);
       }
     }
-    std::cout << "temp exit in curie_demos " << std::endl;
-    exit(0);
 
     // Do one plan
     plan();
@@ -408,7 +403,7 @@ bool CurieDemos::runProblems()
       experience_setup_->doPostProcessing();
     }
 
-    if (visualize_wait_between_plans_)
+    if (visualize_wait_between_plans_ && run_id < planning_runs_ - 1)
       waitForNextStep("run next problem");
     else  // Main pause between planning instances - allows user to analyze
       ros::Duration(visualize_time_between_plans_).sleep();
@@ -768,21 +763,15 @@ bool CurieDemos::generateCartGraph()
   // Generate the Descartes graph - if it fails let user adjust interactive marker
   while (true)
   {
-    if (!cart_path_planner_->generateCartGraph())
+    if (!cart_path_planner_->populateBoltGraph(bolt_->getTaskGraph()))
     {
-      ROS_INFO_STREAM_NAMED(name_, "Unable to populate Descartes graph - try moving the start location");
-      exit(0);
-      waitForNextStep("attempt Descartes planning again");
+      ROS_INFO_STREAM_NAMED(name_, "Unable to populate Bolt graph - try moving the start location");
+      waitForNextStep("attempt Bolt graph generation again");
+      if (!ros::ok())
+        exit(0);
     }
     else
       break;
-  }
-
-  // Convert the Descartes graph into a Bolt TaskGraph
-  if (!cart_path_planner_->convertDescartesGraphToBolt(bolt_->getTaskGraph()))
-  {
-    ROS_ERROR_STREAM_NAMED(name_, "Unable to convert Descartes graph to Bolt TaskGraph");
-    return false;
   }
 
   return true;
