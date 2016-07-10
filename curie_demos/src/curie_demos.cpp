@@ -141,12 +141,12 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_p
   visual_moveit_start_->triggerPlanningSceneUpdate();
   ros::spinOnce();
 
-  if (track_memory_consumption_)
-  {
-    double vm1, rss1;
-    processMemUsage(vm1, rss1);
-    ROS_INFO_STREAM_NAMED(name_, "Current memory consumption - VM: " << vm1 << " MB | RSS: " << rss1 << " MB");
-  }
+  // if (track_memory_consumption_)
+  // {
+  //   double vm1, rss1;
+  //   processMemUsage(vm1, rss1);
+  //   ROS_INFO_STREAM_NAMED(name_, "Current memory consumption - VM: " << vm1 << " MB | RSS: " << rss1 << " MB");
+  // }
 
   // Create start/goal state imarker
   if (!headless_)
@@ -239,12 +239,12 @@ bool CurieDemos::loadOMPL()
 
 bool CurieDemos::loadData()
 {
-  double vm1, rss1;
-  if (track_memory_consumption_)  // Track memory usage
-  {
-    processMemUsage(vm1, rss1);
-    // ROS_INFO_STREAM_NAMED(name_, "Current memory consumption - VM: " << vm1 << " MB | RSS: " << rss1 << " MB");
-  }
+  // double vm1, rss1;
+  // if (track_memory_consumption_)  // Track memory usage
+  // {
+  //   processMemUsage(vm1, rss1);
+  //   // ROS_INFO_STREAM_NAMED(name_, "Current memory consumption - VM: " << vm1 << " MB | RSS: " << rss1 << " MB");
+  // }
 
   // Load database or generate new roadmap
   ROS_INFO_STREAM_NAMED(name_, "Loading or generating roadmap");
@@ -257,13 +257,13 @@ bool CurieDemos::loadData()
     }
   }
 
-  if (track_memory_consumption_)  // Track memory usage
-  {
-    double vm2, rss2;
-    processMemUsage(vm2, rss2);
-    // ROS_INFO_STREAM_NAMED(name_, "Current memory consumption - VM: " << vm2 << " MB | RSS: " << rss2 << " MB");
-    ROS_INFO_STREAM_NAMED(name_, "RAM usage diff - VM: " << vm2 - vm1 << " MB | RSS: " << rss2 - rss1 << " MB");
-  }
+  // if (track_memory_consumption_)  // Track memory usage
+  // {
+  //   double vm2, rss2;
+  //   processMemUsage(vm2, rss2);
+  //   // ROS_INFO_STREAM_NAMED(name_, "Current memory consumption - VM: " << vm2 << " MB | RSS: " << rss2 << " MB");
+  //   ROS_INFO_STREAM_NAMED(name_, "RAM usage diff - VM: " << vm2 - vm1 << " MB | RSS: " << rss2 - rss1 << " MB");
+  // }
 
   return true;
 }

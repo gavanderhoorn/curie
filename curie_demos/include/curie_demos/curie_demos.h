@@ -58,7 +58,7 @@
 #include <ompl_visual_tools/moveit_viz_window.h>
 
 // this package
-#include <curie_demos/process_mem_usage.h>
+//#include <curie_demos/process_mem_usage.h>
 #include <curie_demos/state_validity_checker.h>
 #include <curie_demos/cart_path_planner.h>
 #include <curie_demos/imarker_robot_state.h>

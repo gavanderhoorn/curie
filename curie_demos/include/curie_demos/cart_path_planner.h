@@ -149,6 +149,9 @@ private:
   double trajectory_distance_;
   double trajectory_discretization_;
 
+  // Desired path to draw
+  std::vector<std::vector<double>> path_;
+
 };  // end class
 
 // Create boost pointers for this class

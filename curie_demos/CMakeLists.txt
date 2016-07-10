@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(curie_demos)
 
 # C++ 11
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall ${CMAKE_CXX_FLAGS}")
+add_compile_options(-std=c++11) 
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -59,41 +59,15 @@ include_directories(
 )
 
 # Library
-add_library(${PROJECT_NAME}_moveit_base
-  src/moveit_base.cpp
-)
-target_link_libraries(${PROJECT_NAME}_moveit_base ${catkin_LIBRARIES})
-
-# Library
-add_library(${PROJECT_NAME}_imarker_robot_state
-  src/imarker_robot_state.cpp
-)
-# Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_imarker_robot_state
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
-
-# Library
-add_library(${PROJECT_NAME}_cart_path_planner
-  src/cart_path_planner.cpp
-)
-# Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_cart_path_planner
-  ${PROJECT_NAME}_imarker_robot_state
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
-
-# Library
 add_library(${PROJECT_NAME}
   src/curie_demos.cpp
   src/state_validity_checker.cpp
+  src/imarker_robot_state.cpp
+  src/moveit_base.cpp
+  src/cart_path_planner.cpp
 )
 # Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
-  ${PROJECT_NAME}_moveit_base
-  ${PROJECT_NAME}_cart_path_planner
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
 )
@@ -113,18 +87,18 @@ target_link_libraries(${PROJECT_NAME}_curie_demos_main
 )
 
 # Demo for memory usage
-add_executable(${PROJECT_NAME}_memory_demo
-  src/tools/memory_demo.cpp
-)
-# Rename C++ executable without namespace
-set_target_properties(${PROJECT_NAME}_memory_demo
-  PROPERTIES OUTPUT_NAME memory_demo PREFIX "")
-# Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_memory_demo
-  #${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
+# add_executable(${PROJECT_NAME}_memory_demo
+#   src/tools/memory_demo.cpp
+# )
+# # Rename C++ executable without namespace
+# set_target_properties(${PROJECT_NAME}_memory_demo
+#   PROPERTIES OUTPUT_NAME memory_demo PREFIX "")
+# # Specify libraries to link a library or executable target against
+# target_link_libraries(${PROJECT_NAME}_memory_demo
+#   #${PROJECT_NAME}
+#   ${catkin_LIBRARIES}
+#   ${Boost_LIBRARIES}
+# )
 
 # Demo for distance function
 add_executable(${PROJECT_NAME}_test_pose_distance

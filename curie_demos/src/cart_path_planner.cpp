@@ -42,6 +42,7 @@
 // this package
 #include <curie_demos/cart_path_planner.h>
 #include <curie_demos/curie_demos.h>
+#include <curie_demos/path_loader.h>
 
 // moveit_boilerplate
 #include <moveit_boilerplate/namespaces.h>
@@ -87,6 +88,11 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
 
   // initializing descartes
   initDescartes();
+
+  // Load desired path
+  PathLoader path_loader(parent_->package_path_);
+  const bool debug = true;
+  path_loader.get2DPath(path_, debug);
 
   ROS_INFO_STREAM_NAMED(name_, "CartPathPlanner Ready.");
 }

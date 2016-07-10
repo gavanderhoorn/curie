@@ -3,6 +3,9 @@
  * Retrieved by Dave Coleman
  */
 
+#ifndef CURIE_DEMOS_PROCESS_MEM_USAGE_H
+#define CURIE_DEMOS_PROCESS_MEM_USAGE_H
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -56,3 +59,5 @@ void processMemUsage(double& vm_usage, double& resident_set)
   vm_usage = vm_usage / 1024.0;
   resident_set = resident_set / 1024.0;
 }
+
+#endif  // CURIE_DEMOS_PROCESS_MEM_USAGE_H
