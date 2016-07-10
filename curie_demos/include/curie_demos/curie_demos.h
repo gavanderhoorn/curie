@@ -156,6 +156,7 @@ public:
 
   // Planning groups
   std::string planning_group_name_;
+  std::string ee_tip_link_;
   moveit::core::JointModelGroup* jmg_;
   moveit::core::LinkModel* ee_link_;
 

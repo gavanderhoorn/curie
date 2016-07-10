@@ -89,7 +89,15 @@ public:
           return false;
         }
 
-        point.translation()[i] = boost::lexical_cast<double>(cell.c_str());
+        try
+        {
+          point.translation()[i] = boost::lexical_cast<double>(cell.c_str());
+        }
+        catch(...)
+        {
+          ROS_ERROR_STREAM_NAMED(name_, "Failed to cast value '" << cell << "' to double");
+          return false;
+        }
       } // for
 
       path.push_back(point);

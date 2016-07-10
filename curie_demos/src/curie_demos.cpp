@@ -86,6 +86,7 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_p
   error += !rosparam_shortcuts::get(name_, rpnh, "problem_type", problem_type_);
   error += !rosparam_shortcuts::get(name_, rpnh, "use_task_planning", use_task_planning_);
   error += !rosparam_shortcuts::get(name_, rpnh, "planning_group_name", planning_group_name_);
+  error += !rosparam_shortcuts::get(name_, rpnh, "ee_tip_link", ee_tip_link_);
   error += !rosparam_shortcuts::get(name_, rpnh, "seed_random", seed_random);
   error += !rosparam_shortcuts::get(name_, rpnh, "post_processing", post_processing_);
   error += !rosparam_shortcuts::get(name_, rpnh, "post_processing_interval", post_processing_interval_);
@@ -123,7 +124,7 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_p
 
   // Get the two arms jmg
   jmg_ = robot_model_->getJointModelGroup(planning_group_name_);
-  ee_link_ = robot_model_->getLinkModel("right_gripper_target");
+  ee_link_ = robot_model_->getLinkModel(ee_tip_link_);
 
   // Load planning
   if (!loadOMPL())

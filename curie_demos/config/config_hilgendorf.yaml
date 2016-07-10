@@ -24,6 +24,7 @@ curie_demos:
   #planning_group_name: three_dof
   #planning_group_name: four_dof
   #planning_group_name: five_dof
+  ee_tip_link: right_gripper_target
   use_task_planning: true  # cartesian hybrid planning
   post_processing: false
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
@@ -156,7 +157,6 @@ cart_path_planner:
   descartes_check_collisions: false
   orientation_increment: 1 # in radians, discretization of space [-Pi, Pi]
   trajectory_discretization: 0.01 # how much space, in meters, between trajectory points
-  trajectory_distance: 1.1 # distance to create trajectory
   timing: 0.5 # time between each Cartesian point, e.g. discretization
 
 # ====================================================

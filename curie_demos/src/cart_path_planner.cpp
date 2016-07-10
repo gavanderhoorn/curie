@@ -58,7 +58,7 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
 
   // Create cartesian start pose interactive marker
   imarker_cartesian_.reset(new mvt::IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_,
-                                                 rvt::BLUE, parent_->package_path_));
+                                                      rvt::BLUE, parent_->package_path_));
   imarker_cartesian_->setIMarkerCallback(
       std::bind(&CartPathPlanner::processIMarkerPose, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -81,7 +81,6 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
   error += !rosparam_shortcuts::get(name_, rpnh, "world_frame", world_frame_);
   error += !rosparam_shortcuts::get(name_, rpnh, "descartes_check_collisions", descartes_check_collisions_);
   error += !rosparam_shortcuts::get(name_, rpnh, "orientation_increment", orientation_increment_);
-  error += !rosparam_shortcuts::get(name_, rpnh, "trajectory_distance", trajectory_distance_);
   error += !rosparam_shortcuts::get(name_, rpnh, "trajectory_discretization", trajectory_discretization_);
   error += !rosparam_shortcuts::get(name_, rpnh, "timing", timing_);
   rosparam_shortcuts::shutdownIfError(name_, error);
@@ -92,7 +91,11 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
   // Load desired path
   PathLoader path_loader(parent_->package_path_);
   const bool debug = true;
-  path_loader.get2DPath(path_, debug);
+  if (!path_loader.get2DPath(path_, debug))
+    exit(0);
+
+  // Trigger the first path viz
+  generateExactPoses(/*debug*/ false);
 
   ROS_INFO_STREAM_NAMED(name_, "CartPathPlanner Ready.");
 }
@@ -124,6 +127,7 @@ void CartPathPlanner::initDescartes()
   //   ROS_ERROR_STREAM("Failed to initialize Dense Planner");
   //   exit(-1);
   // }
+
   ROS_INFO_STREAM("Descartes Dense Planner initialized");
 }
 
@@ -136,22 +140,28 @@ void CartPathPlanner::processIMarkerPose(const visualization_msgs::InteractiveMa
   generateExactPoses(start_pose);
 }
 
+bool CartPathPlanner::generateExactPoses(bool debug)
+{
+  // Generate exact poses
+  imarker_state_ = imarker_cartesian_->getRobotState();
+  Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
+
+  generateExactPoses(start_pose, debug);
+}
+
 bool CartPathPlanner::generateExactPoses(const Eigen::Affine3d& start_pose, bool debug)
 {
-  ROS_DEBUG_STREAM_NAMED(name_, "generateExactPoses()");
+  //ROS_DEBUG_STREAM_NAMED(name_, "generateExactPoses()");
   if (debug)
     ROS_WARN_STREAM_NAMED(name_, "Running generateExactPoses() in debug mode");
 
-  Eigen::Affine3d sphere_center = start_pose;
-  sphere_center.translation().z() -= 0.05;  // move center down a bit from end effector TODO(davetcoleman): remove hack
-
-  if (!createDrawing(sphere_center, exact_poses_))
+  if (!transform2DPath(start_pose, exact_poses_))
   {
     ROS_ERROR_STREAM_NAMED(name_, "Trajectory generation failed");
     exit(-1);
   }
 
-  ROS_DEBUG_STREAM_NAMED(name_+".generated", "Generated exact Cartesian traj with " << exact_poses_.size() << " points");
+  ROS_DEBUG_STREAM_NAMED(name_+".generation", "Generated exact Cartesian traj with " << exact_poses_.size() << " points");
 
   // Publish trajectory poses for visualization
   visual_tools_->deleteAllMarkers();
@@ -275,7 +285,7 @@ bool CartPathPlanner::rotateOnAxis(const Eigen::Affine3d& pose, const Orientatio
   return true;
 }
 
-bool CartPathPlanner::createDrawing(const Eigen::Affine3d& starting_point, EigenSTL::vector_Affine3d& poses)
+bool CartPathPlanner::transform2DPath(const Eigen::Affine3d& starting_pose, EigenSTL::vector_Affine3d& poses)
 {
   poses.clear();
 
@@ -284,28 +294,49 @@ bool CartPathPlanner::createDrawing(const Eigen::Affine3d& starting_point, Eigen
     ROS_ERROR_STREAM_NAMED(name_, "Unable to create drawing: no path loaded from file");
     return false;
   }
+  if (path_.size() == 1)
+  {
+    ROS_ERROR_STREAM_NAMED(name_, "Unable to create drawing: path only has 1 point");
+    return false;
+  }
 
   // Transform each point read from file
+  EigenSTL::vector_Affine3d transformed_poses;
   for (std::size_t i = 0; i < path_.size(); ++i)
   {
-    Eigen::Affine3d point = path_[i];
-
-    point = point * starting_point;
+    Eigen::Affine3d point = starting_pose * path_[i];
 
     // Rotate 90 so that the x axis points down
     //  point = point * Eigen::AngleAxisd(M_PI / 2.0, Eigen::Vector3d::UnitY());
 
     // Add start pose
-    poses.push_back(point);
+    transformed_poses.push_back(point);
   }
 
-  // const std::size_t increments = trajectory_distance_ / static_cast<double>(trajectory_discretization_);
-  // Eigen::Affine3d end_pose = start_pose;
-  // for (std::size_t i = 0; i < increments; ++i)
-  // {
-  //   end_pose.translation().x() += trajectory_discretization_;
-  //   poses.push_back(end_pose);
-  // }
+  // Discretize trajectory
+  for (std::size_t i = 1; i < transformed_poses.size(); ++i)
+  {
+    const Eigen::Affine3d &p1 = transformed_poses[i-1];
+    const Eigen::Affine3d &p2 = transformed_poses[i];
+
+    // decide how many steps we will need for this trajectory
+    const double distance = (p2.translation() - p1.translation()).norm();
+    const std::size_t steps = ceil(distance / static_cast<double>(trajectory_discretization_));
+
+    Eigen::Quaterniond p1_quaternion(p1.rotation());
+    Eigen::Quaterniond p2_quaternion(p2.rotation());
+    for (std::size_t j = 0; j <= steps; ++j)
+    {
+      double percentage = (double)j / (double)steps;
+
+      // Create new intermediate pose
+      Eigen::Affine3d temp_pose(p1_quaternion.slerp(percentage, p2_quaternion));
+      temp_pose.translation() = percentage * p2.translation() + (1 - percentage) * p1.translation();
+
+      // Add to trajectory
+      poses.push_back(temp_pose);
+    }
+  }
 
   return true;
 }
@@ -320,13 +351,9 @@ bool CartPathPlanner::populateBoltGraph(ompl::tools::bolt::TaskGraphPtr task_gra
   {
     ROS_WARN_STREAM_NAMED(name_, "No exact poses had been previously generated. Creating.");
 
-    // Generate exact poses
-    imarker_state_ = imarker_cartesian_->getRobotState();
-    Eigen::Affine3d start_pose = imarker_state_->getGlobalLinkTransform(parent_->ee_link_);
-
     // Generating trajectory
     bool debug = false;
-    if (!generateExactPoses(start_pose, debug))
+    if (!generateExactPoses(debug))
       return false;
   }
 

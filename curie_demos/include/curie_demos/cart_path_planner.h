@@ -81,6 +81,7 @@ public:
   void processIMarkerPose(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback,
                           const Eigen::Affine3d& feedback_pose);
 
+  bool generateExactPoses(bool debug = false);
   bool generateExactPoses(const Eigen::Affine3d& start_pose, bool debug = false);
 
   bool debugShowAllIKSolutions();
@@ -88,7 +89,7 @@ public:
                        EigenSTL::vector_Affine3d& candidate_poses);
   bool rotateOnAxis(const Eigen::Affine3d& pose, const OrientationTol& orientation_tol, const Axis axis,
                     EigenSTL::vector_Affine3d& candidate_poses);
-  bool createDrawing(const Eigen::Affine3d& starting_point, EigenSTL::vector_Affine3d& poses);
+  bool transform2DPath(const Eigen::Affine3d& starting_pose, EigenSTL::vector_Affine3d& poses);
   bool populateBoltGraph(ompl::tools::bolt::TaskGraphPtr task_graph);
   bool addCartPointToBoltGraph(const std::vector<std::vector<double>>& joint_poses,
                                      std::vector<ompl::tools::bolt::TaskVertex>& point_vertices,
@@ -146,7 +147,6 @@ private:
   std::string tip_link_;
   std::string base_link_;
   std::string world_frame_;
-  double trajectory_distance_;
   double trajectory_discretization_;
 
   // Desired path to draw

@@ -5,8 +5,14 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Grid1/Offset1
+        - /PlanningScene1
         - /PlanningScene1/Scene Geometry1
         - /PlanningScene1/Scene Robot1
+        - /InteractiveMarkers1
+        - /InteractiveMarkers1/Cart2
+        - /InteractiveMarkers1/Cart2/Links1
+        - /InteractiveMarkers1/Cart2/Links1/right_gripper_target1
+        - /InteractiveMarkers1/Cart3
         - /TF1/Frames1
       Splitter Ratio: 0.561969
     Tree Height: 770
@@ -2623,7 +2629,7 @@ Visualization Manager:
               Value: true
             right_gripper_target:
               Alpha: 1
-              Show Axes: false
+              Show Axes: true
               Show Trail: false
             right_robotiq_85_adapter_link:
               Alpha: 1
@@ -2721,7 +2727,8 @@ Visualization Manager:
           Marker Topic: /hilgendorf/cartesian_trajectory
           Name: Cart
           Namespaces:
-            {}
+            Axis Path: true
+            Cylinder: true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -2761,22 +2768,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 2.71401
+      Distance: 1.12237
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.261819
-        Y: -0.57441
-        Z: -1.34896e-06
+        X: 0.169597
+        Y: -0.831991
+        Z: -9.91329e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.224794
+      Pitch: 0.344794
       Target Frame: robot_table_link
       Value: XYOrbit (rviz)
-      Yaw: 5.83187
+      Yaw: 5.31187
     Saved: ~
 Window Geometry:
   Displays:
