@@ -325,7 +325,7 @@ bool CartPathPlanner::transform2DPath(const Eigen::Affine3d& starting_pose, Eige
 
     Eigen::Quaterniond p1_quaternion(p1.rotation());
     Eigen::Quaterniond p2_quaternion(p2.rotation());
-    for (std::size_t j = 0; j <= steps; ++j)
+    for (std::size_t j = 0; j < steps; ++j)
     {
       double percentage = (double)j / (double)steps;
 

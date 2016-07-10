@@ -5,14 +5,10 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Grid1/Offset1
-        - /PlanningScene1
+        - /Viz1to61
         - /PlanningScene1/Scene Geometry1
         - /PlanningScene1/Scene Robot1
         - /InteractiveMarkers1
-        - /InteractiveMarkers1/Cart2
-        - /InteractiveMarkers1/Cart2/Links1
-        - /InteractiveMarkers1/Cart2/Links1/right_gripper_target1
-        - /InteractiveMarkers1/Cart3
         - /TF1/Frames1
       Splitter Ratio: 0.561969
     Tree Height: 770
@@ -1262,13 +1258,14 @@ Visualization Manager:
           Marker Topic: /hilgendorf/ompl_visual5
           Name: ompl5 - markers
           Namespaces:
-            {}
+            Cylinder: true
+            path_spheres: true
           Queue Size: 100
           Value: true
         - Attached Body Color: 150; 50; 150
           Class: moveit_rviz_plugin/RobotState
           Collision Enabled: false
-          Enabled: true
+          Enabled: false
           Links:
             All Links Enabled: true
             Expand Joint Details: false
@@ -1498,14 +1495,15 @@ Visualization Manager:
           Robot State Topic: /hilgendorf/robot_state6
           Show All Links: true
           Show Highlights: true
-          Value: true
+          Value: false
           Visual Enabled: true
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /hilgendorf/ompl_visual6
           Name: ompl6 - markers
           Namespaces:
-            {}
+            Cylinder: true
+            path_spheres: true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -2629,7 +2627,7 @@ Visualization Manager:
               Value: true
             right_gripper_target:
               Alpha: 1
-              Show Axes: true
+              Show Axes: false
               Show Trail: false
             right_robotiq_85_adapter_link:
               Alpha: 1
@@ -2727,6 +2725,7 @@ Visualization Manager:
           Marker Topic: /hilgendorf/cartesian_trajectory
           Name: Cart
           Namespaces:
+            Axis: true
             Axis Path: true
             Cylinder: true
           Queue Size: 100
@@ -2768,22 +2767,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.12237
+      Distance: 2.30139
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.169597
-        Y: -0.831991
+        X: 0.143738
+        Y: -0.610113
         Z: -9.91329e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.344794
+      Pitch: 0.329794
       Target Frame: robot_table_link
       Value: XYOrbit (rviz)
-      Yaw: 5.31187
+      Yaw: 5.52187
     Saved: ~
 Window Geometry:
   Displays:
