@@ -57,7 +57,7 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
   imarker_state_.reset(new moveit::core::RobotState(*parent_->moveit_start_));
 
   // Create cartesian start pose interactive marker
-  imarker_cartesian_.reset(new IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_,
+  imarker_cartesian_.reset(new mvt::IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_,
                                                  rvt::BLUE, parent_->package_path_));
   imarker_cartesian_->setIMarkerCallback(
       std::bind(&CartPathPlanner::processIMarkerPose, this, std::placeholders::_1, std::placeholders::_2));
@@ -142,8 +142,8 @@ bool CartPathPlanner::generateExactPoses(const Eigen::Affine3d& start_pose, bool
   if (debug)
     ROS_WARN_STREAM_NAMED(name_, "Running generateExactPoses() in debug mode");
 
-  Eigen::Vector3d sphere_center = start_pose.translation();
-  sphere_center.z() -= 0.05;  // move center down a bit from end effector TODO(davetcoleman): remove hack
+  Eigen::Affine3d sphere_center = start_pose;
+  sphere_center.translation().z() -= 0.05;  // move center down a bit from end effector TODO(davetcoleman): remove hack
 
   if (!createDrawing(sphere_center, exact_poses_))
   {
@@ -275,26 +275,37 @@ bool CartPathPlanner::rotateOnAxis(const Eigen::Affine3d& pose, const Orientatio
   return true;
 }
 
-bool CartPathPlanner::createDrawing(const Eigen::Vector3d& starting_point, EigenSTL::vector_Affine3d& poses)
+bool CartPathPlanner::createDrawing(const Eigen::Affine3d& starting_point, EigenSTL::vector_Affine3d& poses)
 {
   poses.clear();
 
-  Eigen::Affine3d start_pose = Eigen::Affine3d::Identity();
-  start_pose.translation() = starting_point;
-
-  // Rotate 90 so that the x axis points down
-  start_pose = start_pose * Eigen::AngleAxisd(M_PI / 2.0, Eigen::Vector3d::UnitY());
-
-  // Add start pose
-  poses.push_back(start_pose);
-
-  const std::size_t increments = trajectory_distance_ / static_cast<double>(trajectory_discretization_);
-  Eigen::Affine3d end_pose = start_pose;
-  for (std::size_t i = 0; i < increments; ++i)
+  if (path_.empty())
   {
-    end_pose.translation().x() += trajectory_discretization_;
-    poses.push_back(end_pose);
+    ROS_ERROR_STREAM_NAMED(name_, "Unable to create drawing: no path loaded from file");
+    return false;
   }
+
+  // Transform each point read from file
+  for (std::size_t i = 0; i < path_.size(); ++i)
+  {
+    Eigen::Affine3d point = path_[i];
+
+    point = point * starting_point;
+
+    // Rotate 90 so that the x axis points down
+    //  point = point * Eigen::AngleAxisd(M_PI / 2.0, Eigen::Vector3d::UnitY());
+
+    // Add start pose
+    poses.push_back(point);
+  }
+
+  // const std::size_t increments = trajectory_distance_ / static_cast<double>(trajectory_discretization_);
+  // Eigen::Affine3d end_pose = start_pose;
+  // for (std::size_t i = 0; i < increments; ++i)
+  // {
+  //   end_pose.translation().x() += trajectory_discretization_;
+  //   poses.push_back(end_pose);
+  // }
 
   return true;
 }

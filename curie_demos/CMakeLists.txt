@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(curie_demos)
 
 # C++ 11
-add_compile_options(-std=c++11) 
+add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -62,7 +62,6 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/curie_demos.cpp
   src/state_validity_checker.cpp
-  src/imarker_robot_state.cpp
   src/moveit_base.cpp
   src/cart_path_planner.cpp
 )

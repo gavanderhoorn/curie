@@ -61,7 +61,7 @@
 //#include <curie_demos/process_mem_usage.h>
 #include <curie_demos/state_validity_checker.h>
 #include <curie_demos/cart_path_planner.h>
-#include <curie_demos/imarker_robot_state.h>
+#include <moveit_visual_tools/imarker_robot_state.h>
 
 namespace mo = moveit_ompl;
 
@@ -209,8 +209,8 @@ public:
   CartPathPlannerPtr cart_path_planner_;
 
   // Interactive markers
-  IMarkerRobotStatePtr imarker_start_;
-  IMarkerRobotStatePtr imarker_goal_;
+  moveit_visual_tools::IMarkerRobotStatePtr imarker_start_;
+  moveit_visual_tools::IMarkerRobotStatePtr imarker_goal_;
 
 };  // end class
 

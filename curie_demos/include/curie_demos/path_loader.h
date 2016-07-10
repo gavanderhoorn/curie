@@ -34,6 +34,7 @@
 
 /* Author: Dave Coleman
    Desc:   Load series of lines from file
+           Future possibility: https://github.com/memononen/nanosvg/blob/master/src/nanosvg.h
 */
 
 #ifndef CURIE_DEMOS_PATH_LOADER_H
@@ -60,7 +61,7 @@ public:
       exit(-1);
   }
 
-  bool get2DPath(std::vector<std::vector<double>> &path, bool debug = false)
+  bool get2DPath(EigenSTL::vector_Affine3d &path, bool debug = false)
   {
     if (!boost::filesystem::exists(file_path_))
     {
@@ -76,7 +77,7 @@ public:
       std::stringstream lineStream(line);
       std::string cell;
 
-      std::vector<double> point;
+      Eigen::Affine3d point = Eigen::Affine3d::Identity();
 
       // For each item/column
       for (std::size_t i = 0; i < 2; ++i)
@@ -88,7 +89,7 @@ public:
           return false;
         }
 
-        point.push_back(boost::lexical_cast<double>(cell.c_str()));
+        point.translation()[i] = boost::lexical_cast<double>(cell.c_str());
       } // for
 
       path.push_back(point);
@@ -100,13 +101,13 @@ public:
     return true;
   }
 
-  void printPath(std::vector<std::vector<double>> &path)
+  void printPath(EigenSTL::vector_Affine3d& path)
   {
     std::cout << "Printing path: " << std::endl;
     for (std::size_t i = 0; i < path.size(); ++i)
     {
-      const std::vector<double> &point = path[i];
-      std::cout << "  Point: " << i << " x: " << point[0] << " y: " << point[1] << std::endl;
+      const Eigen::Affine3d &point = path[i];
+      std::cout << "  Point: " << i << " x: " << point.translation().x() << " y: " << point.translation().y() << std::endl;
     }
   }
 

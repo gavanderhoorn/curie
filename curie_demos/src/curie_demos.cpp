@@ -155,9 +155,9 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_p
     cart_path_planner_.reset(new CartPathPlanner(this));
 
     imarker_start_.reset(
-        new IMarkerRobotState(planning_scene_monitor_, "start", jmg_, ee_link_, rvt::GREEN, package_path_));
+        new mvt::IMarkerRobotState(planning_scene_monitor_, "start", jmg_, ee_link_, rvt::GREEN, package_path_));
     imarker_goal_.reset(
-        new IMarkerRobotState(planning_scene_monitor_, "goal", jmg_, ee_link_, rvt::ORANGE, package_path_));
+        new mvt::IMarkerRobotState(planning_scene_monitor_, "goal", jmg_, ee_link_, rvt::ORANGE, package_path_));
   }
 
   // Set remote_control

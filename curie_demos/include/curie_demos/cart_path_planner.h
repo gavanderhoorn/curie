@@ -60,7 +60,7 @@
 #include <ompl/tools/bolt/TaskGraph.h>
 
 // this package
-#include <curie_demos/imarker_robot_state.h>
+#include <moveit_visual_tools/imarker_robot_state.h>
 #include <curie_demos/tolerances.h>
 
 namespace curie_demos
@@ -88,7 +88,7 @@ public:
                        EigenSTL::vector_Affine3d& candidate_poses);
   bool rotateOnAxis(const Eigen::Affine3d& pose, const OrientationTol& orientation_tol, const Axis axis,
                     EigenSTL::vector_Affine3d& candidate_poses);
-  bool createDrawing(const Eigen::Vector3d& starting_point, EigenSTL::vector_Affine3d& poses);
+  bool createDrawing(const Eigen::Affine3d& starting_point, EigenSTL::vector_Affine3d& poses);
   bool populateBoltGraph(ompl::tools::bolt::TaskGraphPtr task_graph);
   bool addCartPointToBoltGraph(const std::vector<std::vector<double>>& joint_poses,
                                      std::vector<ompl::tools::bolt::TaskVertex>& point_vertices,
@@ -121,7 +121,7 @@ private:
   moveit_visual_tools::MoveItVisualToolsPtr visual_tools_;
 
   // Interactive markers
-  IMarkerRobotStatePtr imarker_cartesian_;
+  moveit_visual_tools::IMarkerRobotStatePtr imarker_cartesian_;
 
   // The planning group to work on
   const moveit::core::JointModelGroup* jmg_;
@@ -150,7 +150,7 @@ private:
   double trajectory_discretization_;
 
   // Desired path to draw
-  std::vector<std::vector<double>> path_;
+  EigenSTL::vector_Affine3d path_;
 
 };  // end class
 
