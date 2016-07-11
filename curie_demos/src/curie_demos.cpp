@@ -666,11 +666,11 @@ void CurieDemos::loadVisualTools()
   visual->setVizWindow(5, viz5_);
   visual->setVizWindow(6, viz6_);
 
-  // Projection viewer - mirrors MoveItVisualTools 6
+  // Project\ion viewer - mirrors MoveItVisualTools 6
   {
     viz6_->getVisualTools()->setGlobalScale(1.0);
 
-    ProjectionVizWindowPtr viz = ProjectionVizWindowPtr(new ProjectionVizWindow(viz6_->getVisualTools(), si_));
+    ProjectionVizWindowPtr viz = ProjectionVizWindowPtr(new ProjectionVizWindow(viz2_->getVisualTools(), si_));
     // Calibrate the color scale for visualization
     const bool invert_colors = true;
     viz->setMinMaxEdgeCost(0, 110, invert_colors);

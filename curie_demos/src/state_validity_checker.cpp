@@ -89,7 +89,6 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
   // Debugging mode that always says state is collision free
   if (!checking_enabled_)
   {
-    std::cout << "skipping: " << std::endl;
     return true;
   }
 
@@ -133,7 +132,6 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
   if (!checking_enabled_)
   {
     dist = std::numeric_limits<double>::infinity();
-    std::cout << "skipping: " << std::endl;
     return true;
   }
 
