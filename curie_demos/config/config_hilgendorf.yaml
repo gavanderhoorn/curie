@@ -29,7 +29,7 @@ curie_demos:
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
   seed_random: true
   use_logging: false # write to file log info
-  collision_checking_enabled: true
+  collision_checking_enabled: false
   visualize:
     display_database: false # does not display database as it is built, however
     start_goal_states: false
@@ -76,14 +76,14 @@ sparse_criteria:
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
   use_discretized_samples: true
-  use_random_samples: true
+  use_random_samples: false
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
   save_interval: 1000 # how often to save during random sampling
   verbose:
     added_reason: true # print when adding vertices & edges, and the reason why
-    criteria: false # all criteria except 4th (quality)
+    criteria: true # all criteria except 4th (quality)
     quality: false # 4th criteria
     remove_close: false
   visualize:

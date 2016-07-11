@@ -120,7 +120,7 @@ void CartPathPlanner::initDescartes()
   // Set collision checking.
   ur5_robot_model_->setCheckCollisions(descartes_check_collisions_);
   if (!descartes_check_collisions_)
-    ROS_WARN_STREAM_NAMED(name_, "Collision checking disabled");
+    ROS_INFO_STREAM_NAMED(name_, "Descartes collision checking disabled");
 
   // if (!planner_.initialize(ur5_robot_model_))
   // {
@@ -533,9 +533,9 @@ bool CartPathPlanner::addEdgesToBoltGraph(const TrajectoryGraph& graph_vertices,
 
         // Convert OMPL state to std::vector
         const double* start_array =
-            task_graph_->getVertexState(v0)->as<moveit_ompl::ModelBasedStateSpace::StateType>()->values;
+            task_graph_->getState(v0)->as<moveit_ompl::ModelBasedStateSpace::StateType>()->values;
         const double* end_array =
-            task_graph_->getVertexState(v1)->as<moveit_ompl::ModelBasedStateSpace::StateType>()->values;
+            task_graph_->getState(v1)->as<moveit_ompl::ModelBasedStateSpace::StateType>()->values;
 
         // Attempt to eliminate edge based on the ability to achieve joint motion is possible in the window provided
         if (!ur5_robot_model_->isValidMove(start_array, end_array, space->getDimension(), timing_))
