@@ -13,13 +13,13 @@ curie_demos:
   auto_run: true # do not wait to move interactive markers. note: 'autonomous' setting must be 'false'
 
   # run type
-  headless: false
+  headless: true
   planning_runs: 10
   problem_type: 1 # 0 - random, 1 - imarkers
   experience_planner: bolt
-  #planning_group_name: both_arms
+  planning_group_name: both_arms
   #planning_group_name: right_arm
-  planning_group_name: two_dof
+  #planning_group_name: two_dof
   #planning_group_name: three_dof
   #planning_group_name: four_dof
   #planning_group_name: five_dof
@@ -29,11 +29,11 @@ curie_demos:
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
   seed_random: true
   use_logging: false # write to file log info
-  collision_checking_enabled: false
+  collision_checking_enabled: true
   visualize:
     display_database: false # does not display database as it is built, however
     start_goal_states: false
-    interpolated_traj: true
+    interpolated_traj: false
     time_between_plans: 2
     database_every_plan: false
   verbose:
@@ -52,20 +52,20 @@ sparse_graph:
   verbose:
     add: false # debug when addVertex() and addEdge() are called
   visualize:
-    spars_graph: true
+    spars_graph: false
     spars_graph_speed: 0.00001 # if 0, does not animate but only single image draw
     database_vertices: true # must have spars_graph enabled
     database_edges: true # must have spars_graph enabled
     database_coverage: false # the grey circles around vertices, must have spars_graph enabled
     graph_after_loading: false
-    quality_path_simp: true # simplification
+    quality_path_simp: false # simplification
     astar: true # show node expansions and openings
     astar_speed: 0.01 # how many seconds to wait between each visualization
 
 # ====================================================
 sparse_criteria:
-  sparse_delta_fraction: 0.1
-  #sparse_delta_fraction: 0.2
+  #sparse_delta_fraction: 0.1
+  sparse_delta_fraction: 0.2
   dense_delta_fraction: 0.01
   penetration_overlap_fraction: 0.1
   near_sample_points_multiple: 2
@@ -76,14 +76,14 @@ sparse_criteria:
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
   use_discretized_samples: true
-  use_random_samples: false
+  use_random_samples: true
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
   save_interval: 1000 # how often to save during random sampling
   verbose:
-    added_reason: true # print when adding vertices & edges, and the reason why
-    criteria: true # all criteria except 4th (quality)
+    added_reason: false # print when adding vertices & edges, and the reason why
+    criteria: false # all criteria except 4th (quality)
     quality: false # 4th criteria
     remove_close: false
   visualize:
