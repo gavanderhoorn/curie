@@ -15,10 +15,9 @@ An [automated docker image](https://hub.docker.com/r/davetcoleman/curie/builds/)
 
 ## ROS Jade Installation
 
-Note: for now we have to install MoveIt! from source because OMPL requires C++11 and Descartes requires the new IK funcitonality
+Tested on Ubuntu 14.04. To build this package in a new workspace:
 
-This should also work on Indigo. Was tested on Ubuntu 14.04. To build this package in a new workspace:
-
+    sudo apt-get remove ompl
     mkdir -p ws_moveit/src
     cd ws_moveit/src
     wstool init .
