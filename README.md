@@ -22,7 +22,7 @@ This should also work on Indigo. Was tested on Ubuntu 14.04. To build this packa
     mkdir -p ws_moveit/src
     cd ws_moveit/src
     wstool init .
-    wstool merge https://raw.githubusercontent.com/davetcoleman/moveit/kinetic-devel/moveit.rosinstall
+    wstool merge https://raw.githubusercontent.com/davetcoleman/curie/kinetic-devel/curie.rosinstall
     wstool update
     touch robotiq/robotiq_action_server/CATKIN_IGNORE
     touch robotiq/robotiq_c_model_control/CATKIN_IGNORE
