@@ -20,11 +20,11 @@
 - git:
     local-name: descartes
     uri: https://github.com/davetcoleman/descartes.git
-    version: indigo-all
+    version: indigo-all-all
 - git:
     local-name: hilgendorf
     uri: https://github.com/davetcoleman/hilgendorf.git
-    version: indigo-devel
+    version: indigo-dave
 - git:
     local-name: robotiq
     uri: https://github.com/davetcoleman/robotiq.git
@@ -70,7 +70,8 @@
 
 # Temporary until MoveIt is updated
 - git: {local-name: moveit_core, uri: 'https://github.com/ros-planning/moveit_core.git', version: jade-devel}
-#- git: {local-name: moveit_planners, uri: 'https://github.com/davetcoleman/moveit_planners.git', version: kinetic-devel-cpp11}
 - git: {local-name: moveit_ros, uri: 'https://github.com/ros-planning/moveit_ros.git', version: jade-devel}
 - git: {local-name: moveit_msgs, uri: 'https://github.com/ros-planning/moveit_msgs.git', version: jade-devel}
 - git: {local-name: moveit_plugins, uri: 'https://github.com/ros-planning/moveit_plugins.git', version: jade-devel}
+# Required until warehouse_ros 0.9.0 is released
+- git: {local-name: warehouse_ros, uri: 'https://github.com/ros-planning/warehouse_ros.git', version: jade-devel}
