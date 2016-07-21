@@ -13,13 +13,13 @@ curie_demos:
   auto_run: true # do not wait to move interactive markers. note: 'autonomous' setting must be 'false'
 
   # run type
-  headless: true
+  headless: false
   planning_runs: 10
   problem_type: 1 # 0 - random, 1 - imarkers
   experience_planner: bolt
-  planning_group_name: both_arms
+  #planning_group_name: both_arms
   #planning_group_name: right_arm
-  #planning_group_name: two_dof
+  planning_group_name: two_dof
   #planning_group_name: three_dof
   #planning_group_name: four_dof
   #planning_group_name: five_dof
@@ -29,7 +29,7 @@ curie_demos:
   post_processing_interval: 20 # how often (in runs) to adjust the graphs
   seed_random: true
   use_logging: false # write to file log info
-  collision_checking_enabled: true
+  collision_checking_enabled: false
   visualize:
     display_database: false # does not display database as it is built, however
     start_goal_states: false
@@ -47,16 +47,17 @@ debug_interface:
 
 # ====================================================
 sparse_graph:
-  save_enabled: true
+  save_enabled: false
   super_debug: false # run more checks and tests that slow down speed
   verbose:
     add: false # debug when addVertex() and addEdge() are called
   visualize:
-    spars_graph: false
+    spars_graph: true
     spars_graph_speed: 0.00001 # if 0, does not animate but only single image draw
     database_vertices: true # must have spars_graph enabled
     database_edges: true # must have spars_graph enabled
     database_coverage: false # the grey circles around vertices, must have spars_graph enabled
+    projection: true # show the joint space in a nD grid
     graph_after_loading: false
     quality_path_simp: false # simplification
     astar: true # show node expansions and openings
@@ -64,8 +65,8 @@ sparse_graph:
 
 # ====================================================
 sparse_criteria:
-  #sparse_delta_fraction: 0.1
-  sparse_delta_fraction: 0.2
+  sparse_delta_fraction: 0.1 # for 6dof
+  #sparse_delta_fraction: 0.2 # for 12dof
   dense_delta_fraction: 0.01
   penetration_overlap_fraction: 0.1
   near_sample_points_multiple: 2
@@ -75,8 +76,9 @@ sparse_criteria:
   terminate_after_failures: 5000 # total failures, including 4th criteria
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
+  use_l2_norm: false # instead use L1
   use_discretized_samples: true
-  use_random_samples: true
+  use_random_samples: false
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
@@ -98,7 +100,7 @@ sparse_criteria:
 # ====================================================
 vertex_discretizer:
   verbose:
-    verbose: false
+    verbose: true
     thread: false # output within threading (very verbose)
   visualize:
     grid_generation: false
