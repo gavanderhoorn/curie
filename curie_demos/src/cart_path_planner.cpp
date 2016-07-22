@@ -90,7 +90,7 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
 
   // Load desired path
   PathLoader path_loader(parent_->package_path_);
-  const bool debug = true;
+  const bool debug = false;
   if (!path_loader.get2DPath(path_, debug))
     exit(0);
 
