@@ -206,6 +206,17 @@ bool CurieDemos::loadOMPL()
   // Get Space Info
   si_ = experience_setup_->getSpaceInformation();
 
+  // Run interface for loading rosparam settings into OMPL
+  moveit_ompl::loadOMPLParameters(nh_, name_, bolt_);
+
+  // Load collision checker
+  loadCollisionChecker();
+
+  // Setup base OMPL stuff. Do this before choosing filename so sparseDeltaFraction is ready
+  ROS_INFO_STREAM_NAMED(name_, "Setting up Bolt");
+  experience_setup_->setup();
+  assert(si_->isSetup());
+
   // Set the database file location
   std::string file_path = "";
   std::string file_name;
@@ -218,18 +229,6 @@ bool CurieDemos::loadOMPL()
     file_name = file_name +" thunder_" + planning_group_name_ + "_database";
   moveit_ompl::getFilePath(file_path, file_name, "ros/ompl_storage");
   experience_setup_->setFilePath(file_path);  // this is here because its how we do it in moveit_ompl
-
-  // Load collision checker
-  loadCollisionChecker();
-
-  // Run interface for loading rosparam settings into OMPL
-  if (is_bolt_)
-    moveit_ompl::loadOMPLParameters(nh_, name_, bolt_);
-
-  // Setup base OMPL stuff
-  ROS_INFO_STREAM_NAMED(name_, "Setting up OMPL experience");
-  experience_setup_->setup();
-  assert(si_->isSetup());
 
   // Create start and goal states
   ompl_start_ = space_->allocState();
