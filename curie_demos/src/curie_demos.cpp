@@ -138,7 +138,7 @@ CurieDemos::CurieDemos(const std::string &hostname, const std::string &package_p
 
   // Add a collision objects
   visual_moveit_start_->publishCollisionFloor(0.001, "floor", rvt::TRANSLUCENT_DARK);
-  visual_moveit_start_->publishCollisionWall(-0.5, 0.0, 0, 2, 1.5, "wall", rvt::BLACK);
+  visual_moveit_start_->publishCollisionWall(-0.3, 0.0, 0, 2, 1.5, "wall", rvt::BLACK);
   visual_moveit_start_->triggerPlanningSceneUpdate();
   ros::spinOnce();
 
@@ -273,9 +273,11 @@ void CurieDemos::run()
   deleteAllMarkers();  // again, cause it seems broken
 
   // Benchmark performance
-  if (benchmark_performance_ && is_bolt_)
+  if (benchmark_performance_)
   {
-    bolt_->benchmarkSparseGraphGeneration();
+    //testMotionValidator();
+    //bolt_->benchmarkSparseGraphGeneration();
+    bolt_->benchmarkRandValidSampling();
     ROS_INFO_STREAM_NAMED(name_, "Finished benchmarking");
     exit(0);
   }
@@ -526,12 +528,11 @@ bool CurieDemos::plan()
 void CurieDemos::loadCollisionChecker()
 {
   // Create state validity checking for this space
-  moveit_ompl::StateValidityChecker *checker =
-      new moveit_ompl::StateValidityChecker(planning_group_name_, si_, *current_state_, planning_scene_, space_);
-  checker->setCheckingEnabled(collision_checking_enabled_);
+  validity_checker_ = new moveit_ompl::StateValidityChecker(planning_group_name_, si_, *current_state_, planning_scene_, space_);
+  validity_checker_->setCheckingEnabled(collision_checking_enabled_);
 
   // Set checker
-  experience_setup_->setStateValidityChecker(ob::StateValidityCheckerPtr(checker));
+  experience_setup_->setStateValidityChecker(ob::StateValidityCheckerPtr(validity_checker_));
 
   // The interval in which obstacles are checked for between states
   // seems that it default to 0.01 but doesn't do a good job at that level
@@ -636,7 +637,7 @@ void CurieDemos::loadVisualTools()
 
   viz6_->getVisualTools()->setBaseFrame("world");
   visual_moveit_start_ = viz6_->getVisualTools();
-  visual_moveit_goal_ = viz2_->getVisualTools();  // TODO goal arm is in different window
+  visual_moveit_goal_ = viz5_->getVisualTools();
 
   ros::spinOnce();
 
@@ -860,6 +861,36 @@ bool CurieDemos::getRandomState(moveit::core::RobotStatePtr &robot_state)
   ROS_ERROR_STREAM_NAMED(name_, "Unable to find valid random robot state");
   exit(-1);
   return false;
+}
+
+void CurieDemos::testMotionValidator()
+{
+  // THIS FUNCTION BROKEN BECAUSE moveit_core SAYS "FCL continuous collision checking not yet implemented"
+
+  //moveit::core::RobotStatePtr start = moveit::core::RobotStatePtr(new moveit::core::RobotState(*current_state_));
+  //moveit::core::RobotStatePtr goal = moveit::core::RobotStatePtr(new moveit::core::RobotState(*current_state_));
+  moveit_start_->setToRandomPositions(jmg_);
+  moveit_goal_->setToRandomPositions(jmg_);
+
+  //visual_moveit_start_->publishRobotState(moveit_start_, rvt::GREEN);
+  visual_moveit_goal_->publishRobotState(moveit_goal_, rvt::ORANGE);
+
+  // Check for collision between to states
+  bool verbose = true;
+  collision_detection::CollisionResult res;
+  planning_scene_->checkCollision(validity_checker_->collision_request_with_distance_verbose_, res, *moveit_start_);
+  std::cout << "start state in collision: " << res.collision << std::endl;
+
+  collision_detection::CollisionRequest req;
+  req.group_name = planning_group_name_;
+  req.verbose = true;
+
+  // Check motion
+  planning_scene_->getCollisionWorld()->checkCollision(req, res, *planning_scene_->getCollisionRobot(),
+                                                       *moveit_start_, *moveit_goal_);
+
+  std::cout << "motion in collision: " << res.collision << std::endl;
+
 }
 
 }  // namespace curie_demos

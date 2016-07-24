@@ -95,8 +95,9 @@ protected:
   collision_detection::CollisionRequest collision_request_simple_;
   collision_detection::CollisionRequest collision_request_with_distance_;
   collision_detection::CollisionRequest collision_request_simple_verbose_;
+public:
   collision_detection::CollisionRequest collision_request_with_distance_verbose_;
-
+protected:
   collision_detection::CollisionRequest collision_request_with_cost_;
   bool verbose_;
 

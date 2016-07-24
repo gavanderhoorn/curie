@@ -17,10 +17,9 @@ curie_demos:
   planning_runs: 10
   problem_type: 1 # 0 - random, 1 - imarkers
   experience_planner: bolt
-  #planning_group_name: both_arms
-  #planning_group_name: right_arm
+  planning_group_name: right_arm
   #planning_group_name: two_dof
-  planning_group_name: three_dof
+  #planning_group_name: three_dof
   #planning_group_name: four_dof
   #planning_group_name: five_dof
   ee_tip_link: right_gripper_target
@@ -47,12 +46,12 @@ debug_interface:
 
 # ====================================================
 sparse_graph:
-  save_enabled: false
+  save_enabled: true
   super_debug: false # run more checks and tests that slow down speed
   verbose:
     add: true # debug when addVertex() and addEdge() are called
   visualize:
-    spars_graph: true
+    spars_graph: false
     spars_graph_speed: 0.00001 # if 0, does not animate but only single image draw
     database_vertices: true # must have spars_graph enabled
     database_edges: true # must have spars_graph enabled
@@ -65,15 +64,15 @@ sparse_graph:
 
 # ====================================================
 sparse_criteria:
-  sparse_delta_fraction: 0.1 # for 6dof
-  #sparse_delta_fraction: 0.2 # for 12dof
+  #sparse_delta_fraction: 0.1 # for 6dof
+  sparse_delta_fraction: 0.2 # for 12dof
   dense_delta_fraction: 0.01
   penetration_overlap_fraction: 0.1
   near_sample_points_multiple: 2 # multiply this times number of dimensions
   stretch_factor: 5 # 0 means auto set
   obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
   fourth_criteria_after_failures: 1000 #5000 # mode change to 4th criteria after this many failures
-  terminate_after_failures: 0 #5000 # total failures, including 4th criteria
+  terminate_after_failures: 1000 #5000 # total failures, including 4th criteria
   sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
   percent_max_extent_underestimate: 1.5 # 0 to 1
   use_l2_norm: false # instead use L1

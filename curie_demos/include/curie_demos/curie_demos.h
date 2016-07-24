@@ -115,6 +115,8 @@ public:
 
   void waitForNextStep(const std::string& msg);
 
+  void testMotionValidator();
+
   // --------------------------------------------------------
 
   // A shared node handle
@@ -213,6 +215,8 @@ public:
   moveit_visual_tools::IMarkerRobotStatePtr imarker_start_;
   moveit_visual_tools::IMarkerRobotStatePtr imarker_goal_;
 
+  // Validity checker
+  moveit_ompl::StateValidityChecker *validity_checker_;
 };  // end class
 
 // Create boost pointers for this class
