@@ -292,7 +292,7 @@ void CurieDemos::run()
   // Create SPARS
   if (create_spars_ && (!loaded || continue_spars_))
   {
-    bolt_->getSparseCriteria()->createSPARS();
+    bolt_->getSparseGenerator()->createSPARS();
     loaded = true;
   }
 

@@ -6,7 +6,7 @@ curie_demos:
   display_disjoint_sets: false
   eliminate_dense_disjoint_sets: false
   check_valid_vertices: false
-  load_spars: false
+  load_spars: true
   create_spars: true
   continue_spars: true # even if a file has been saved, randomly sample for more coverage
   run_problems: false # do plans?
@@ -41,15 +41,16 @@ curie_demos:
 
 # ====================================================
 debug_interface:
-  autonomous: true
+  autonomous: false
   full_autonomous: false # TODO this is not used
 
 # ====================================================
 sparse_graph:
   save_enabled: true
   super_debug: false # run more checks and tests that slow down speed
+  obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
   verbose:
-    add: true # debug when addVertex() and addEdge() are called
+    add: false # debug when addVertex() and addEdge() are called
   visualize:
     spars_graph: false
     spars_graph_speed: 0.00001 # if 0, does not animate but only single image draw
@@ -61,6 +62,8 @@ sparse_graph:
     quality_path_simp: false # simplification
     astar: true # show node expansions and openings
     astar_speed: 0.01 # how many seconds to wait between each visualization
+    voronoi_diagram: false
+    voronoi_diagram_animated: false
 
 # ====================================================
 sparse_criteria:
@@ -70,18 +73,10 @@ sparse_criteria:
   penetration_overlap_fraction: 0.1
   near_sample_points_multiple: 2 # multiply this times number of dimensions
   stretch_factor: 5 # 0 means auto set
-  obstacle_clearance: 0.006 #0.0035 # max before gripper piece is in collision
-  fourth_criteria_after_failures: 1000 #5000 # mode change to 4th criteria after this many failures
-  terminate_after_failures: 1000 #5000 # total failures, including 4th criteria
-  sparse_creation_insertion_order: 1 # 0 - popularity, 1 - default, 2 - random
-  percent_max_extent_underestimate: 1.5 # 0 to 1
   use_l2_norm: false # instead use L1
-  use_discretized_samples: true
-  use_random_samples: true
   use_check_remove_close_vertices: false # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: false # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
-  save_interval: 1000 # how often to save during random sampling
   verbose:
     added_reason: false # print when adding vertices & edges, and the reason why
     criteria: false # all criteria except 4th (quality)
@@ -92,9 +87,15 @@ sparse_criteria:
     connectivity: false # show states in different connected components for connectivity criteria
     quality_criteria: false
     remove_close_vertices: false
-    voronoi_diagram: false
-    voronoi_diagram_animated: false
     node_popularity: false
+
+# ====================================================
+sparse_generator:
+  fourth_criteria_after_failures: 1000 # mode change to 4th criteria after this many failures
+  terminate_after_failures: 1000 # total failures, including 4th criteria
+  use_discretized_samples: true
+  use_random_samples: true
+  save_interval: 1000 # how often to save during random sampling
 
 # ====================================================
 vertex_discretizer:
