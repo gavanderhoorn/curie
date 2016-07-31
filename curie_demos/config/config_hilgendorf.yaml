@@ -81,13 +81,15 @@ sparse_criteria:
     added_reason: false # print when adding vertices & edges, and the reason why
     criteria: false # all criteria except 4th (quality)
     quality: false # 4th criteria
+    quality_max_spanner: false
     remove_close: false
   visualize:
     attempted_states: false # show the current sampled state before its added
     connectivity: false # show states in different connected components for connectivity criteria
     quality_criteria: false
+    quality_criteria_close_reps: false # window 3
+    quality_criteria_sampler: false
     remove_close_vertices: false
-    node_popularity: false
 
 # ====================================================
 sparse_generator:
