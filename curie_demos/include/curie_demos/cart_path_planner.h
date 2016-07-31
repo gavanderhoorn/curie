@@ -65,7 +65,6 @@
 
 namespace curie_demos
 {
-
 class CurieDemos;
 
 class CartPathPlanner
@@ -92,12 +91,12 @@ public:
   bool transform2DPath(const Eigen::Affine3d& starting_pose, EigenSTL::vector_Affine3d& poses);
   bool populateBoltGraph(ompl::tools::bolt::TaskGraphPtr task_graph);
   bool addCartPointToBoltGraph(const std::vector<std::vector<double>>& joint_poses,
-                                     std::vector<ompl::tools::bolt::TaskVertex>& point_vertices,
-                                     moveit::core::RobotStatePtr moveit_robot_state);
+                               std::vector<ompl::tools::bolt::TaskVertex>& point_vertices,
+                               moveit::core::RobotStatePtr moveit_robot_state);
   bool addEdgesToBoltGraph(const TrajectoryGraph& graph_vertices, ompl::tools::bolt::TaskVertex startingVertex,
                            ompl::tools::bolt::TaskVertex endingVertex);
   bool connectTrajectoryEndPoints(const TrajectoryGraph& graph_vertices, double& shortest_path_across_cart);
-  bool getAllJointPosesForCartPoint(const Eigen::Affine3d& pose, std::vector<std::vector<double>> &joint_poses);
+  bool getAllJointPosesForCartPoint(const Eigen::Affine3d& pose, std::vector<std::vector<double>>& joint_poses);
   void visualizeAllJointPoses(const std::vector<std::vector<double>>& joint_poses);
 
 private:

@@ -216,7 +216,7 @@ public:
   moveit_visual_tools::IMarkerRobotStatePtr imarker_goal_;
 
   // Validity checker
-  moveit_ompl::StateValidityChecker *validity_checker_;
+  moveit_ompl::StateValidityChecker* validity_checker_;
 };  // end class
 
 // Create boost pointers for this class

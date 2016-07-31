@@ -76,14 +76,13 @@ public:
   void setVerbose(bool flag);
 
   /** \brief Getter for CheckingEnabled */
-  const bool& getCheckingEnabled() const
+  const bool &getCheckingEnabled() const
   {
     return checking_enabled_;
   }
 
   /** \brief Setter for CheckingEnabled */
-  void setCheckingEnabled(const bool& checking_enabled);
-
+  void setCheckingEnabled(const bool &checking_enabled);
 
 protected:
   std::string group_name_;
@@ -95,8 +94,10 @@ protected:
   collision_detection::CollisionRequest collision_request_simple_;
   collision_detection::CollisionRequest collision_request_with_distance_;
   collision_detection::CollisionRequest collision_request_simple_verbose_;
+
 public:
   collision_detection::CollisionRequest collision_request_with_distance_verbose_;
+
 protected:
   collision_detection::CollisionRequest collision_request_with_cost_;
   bool verbose_;

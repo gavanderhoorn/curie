@@ -226,7 +226,7 @@ bool CurieDemos::loadOMPL()
     file_name = file_name + "bolt_" + planning_group_name_ + "_" +
                 std::to_string(bolt_->getSparseCriteria()->sparseDeltaFraction_) + "_database";
   else
-    file_name = file_name +" thunder_" + planning_group_name_ + "_database";
+    file_name = file_name + " thunder_" + planning_group_name_ + "_database";
   moveit_ompl::getFilePath(file_path, file_name, "ros/ompl_storage");
   experience_setup_->setFilePath(file_path);  // this is here because its how we do it in moveit_ompl
 
@@ -275,15 +275,15 @@ void CurieDemos::run()
   // Benchmark performance
   if (benchmark_performance_)
   {
-    //testMotionValidator();
-    //bolt_->benchmarkSparseGraphGeneration();
+    // testMotionValidator();
+    // bolt_->benchmarkSparseGraphGeneration();
     bolt_->benchmarkRandValidSampling();
     ROS_INFO_STREAM_NAMED(name_, "Finished benchmarking");
     exit(0);
   }
 
   // Load from file
-  bool loaded  = false;
+  bool loaded = false;
   if (load_spars_)
   {
     loaded = loadData();
@@ -528,7 +528,8 @@ bool CurieDemos::plan()
 void CurieDemos::loadCollisionChecker()
 {
   // Create state validity checking for this space
-  validity_checker_ = new moveit_ompl::StateValidityChecker(planning_group_name_, si_, *current_state_, planning_scene_, space_);
+  validity_checker_ =
+      new moveit_ompl::StateValidityChecker(planning_group_name_, si_, *current_state_, planning_scene_, space_);
   validity_checker_->setCheckingEnabled(collision_checking_enabled_);
 
   // Set checker
@@ -867,12 +868,12 @@ void CurieDemos::testMotionValidator()
 {
   // THIS FUNCTION BROKEN BECAUSE moveit_core SAYS "FCL continuous collision checking not yet implemented"
 
-  //moveit::core::RobotStatePtr start = moveit::core::RobotStatePtr(new moveit::core::RobotState(*current_state_));
-  //moveit::core::RobotStatePtr goal = moveit::core::RobotStatePtr(new moveit::core::RobotState(*current_state_));
+  // moveit::core::RobotStatePtr start = moveit::core::RobotStatePtr(new moveit::core::RobotState(*current_state_));
+  // moveit::core::RobotStatePtr goal = moveit::core::RobotStatePtr(new moveit::core::RobotState(*current_state_));
   moveit_start_->setToRandomPositions(jmg_);
   moveit_goal_->setToRandomPositions(jmg_);
 
-  //visual_moveit_start_->publishRobotState(moveit_start_, rvt::GREEN);
+  // visual_moveit_start_->publishRobotState(moveit_start_, rvt::GREEN);
   visual_moveit_goal_->publishRobotState(moveit_goal_, rvt::ORANGE);
 
   // Check for collision between to states
@@ -886,11 +887,10 @@ void CurieDemos::testMotionValidator()
   req.verbose = true;
 
   // Check motion
-  planning_scene_->getCollisionWorld()->checkCollision(req, res, *planning_scene_->getCollisionRobot(),
-                                                       *moveit_start_, *moveit_goal_);
+  planning_scene_->getCollisionWorld()->checkCollision(req, res, *planning_scene_->getCollisionRobot(), *moveit_start_,
+                                                       *moveit_goal_);
 
   std::cout << "motion in collision: " << res.collision << std::endl;
-
 }
 
 }  // namespace curie_demos

@@ -1,6 +1,5 @@
-  bool visualizeMoveItCartPath(const Eigen::Affine3d &start_pose);
-  bool computeFullMoveItTrajectory(std::vector<moveit::core::RobotStatePtr>& trajectory);
-
+bool visualizeMoveItCartPath(const Eigen::Affine3d &start_pose);
+bool computeFullMoveItTrajectory(std::vector<moveit::core::RobotStatePtr> &trajectory);
 
 bool CartPathPlanner::visualizeMoveItCartPath(const Eigen::Affine3d &start_pose)
 {

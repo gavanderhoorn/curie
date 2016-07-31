@@ -52,7 +52,7 @@ class PathLoader
 {
 public:
   /** \brief Constructor */
-  PathLoader(const std::string& package_path)
+  PathLoader(const std::string &package_path)
   {
     ROS_INFO_STREAM_NAMED(name_, "PathLoader Ready.");
 
@@ -93,15 +93,15 @@ public:
         {
           point.translation()[i] = boost::lexical_cast<double>(cell.c_str());
         }
-        catch(...)
+        catch (...)
         {
           ROS_ERROR_STREAM_NAMED(name_, "Failed to cast value '" << cell << "' to double");
           return false;
         }
-      } // for
+      }  // for
 
       path.push_back(point);
-    } // while
+    }  // while
 
     if (debug)
       printPath(path);
@@ -109,13 +109,14 @@ public:
     return true;
   }
 
-  void printPath(EigenSTL::vector_Affine3d& path)
+  void printPath(EigenSTL::vector_Affine3d &path)
   {
     std::cout << "Printing path: " << std::endl;
     for (std::size_t i = 0; i < path.size(); ++i)
     {
       const Eigen::Affine3d &point = path[i];
-      std::cout << "  Point: " << i << " x: " << point.translation().x() << " y: " << point.translation().y() << std::endl;
+      std::cout << "  Point: " << i << " x: " << point.translation().x() << " y: " << point.translation().y()
+                << std::endl;
     }
   }
 

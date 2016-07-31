@@ -57,8 +57,8 @@ CartPathPlanner::CartPathPlanner(CurieDemos* parent) : name_("cart_path_planner"
   imarker_state_.reset(new moveit::core::RobotState(*parent_->moveit_start_));
 
   // Create cartesian start pose interactive marker
-  imarker_cartesian_.reset(new mvt::IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_, parent_->ee_link_,
-                                                      rvt::BLUE, parent_->package_path_));
+  imarker_cartesian_.reset(new mvt::IMarkerRobotState(parent_->getPlanningSceneMonitor(), "cart", jmg_,
+                                                      parent_->ee_link_, rvt::BLUE, parent_->package_path_));
   imarker_cartesian_->setIMarkerCallback(
       std::bind(&CartPathPlanner::processIMarkerPose, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -151,7 +151,7 @@ bool CartPathPlanner::generateExactPoses(bool debug)
 
 bool CartPathPlanner::generateExactPoses(const Eigen::Affine3d& start_pose, bool debug)
 {
-  //ROS_DEBUG_STREAM_NAMED(name_, "generateExactPoses()");
+  // ROS_DEBUG_STREAM_NAMED(name_, "generateExactPoses()");
   if (debug)
     ROS_WARN_STREAM_NAMED(name_, "Running generateExactPoses() in debug mode");
 
@@ -161,7 +161,8 @@ bool CartPathPlanner::generateExactPoses(const Eigen::Affine3d& start_pose, bool
     exit(-1);
   }
 
-  ROS_DEBUG_STREAM_NAMED(name_+".generation", "Generated exact Cartesian traj with " << exact_poses_.size() << " points");
+  ROS_DEBUG_STREAM_NAMED(name_ + ".generation", "Generated exact Cartesian traj with " << exact_poses_.size() << " poin"
+                                                                                                                 "ts");
 
   // Publish trajectory poses for visualization
   visual_tools_->deleteAllMarkers();
@@ -170,7 +171,7 @@ bool CartPathPlanner::generateExactPoses(const Eigen::Affine3d& start_pose, bool
   visual_tools_->triggerBatchPublish();
 
   // Specify tolerance for new exact_poses
-  //orientation_tol_ = OrientationTol(M_PI, 0, 0);
+  // orientation_tol_ = OrientationTol(M_PI, 0, 0);
   orientation_tol_ = OrientationTol(M_PI, M_PI / 5, M_PI / 5);
   // rosparam timing_ = 0.1;
 
@@ -316,8 +317,8 @@ bool CartPathPlanner::transform2DPath(const Eigen::Affine3d& starting_pose, Eige
   // Discretize trajectory
   for (std::size_t i = 1; i < transformed_poses.size(); ++i)
   {
-    const Eigen::Affine3d &p1 = transformed_poses[i-1];
-    const Eigen::Affine3d &p2 = transformed_poses[i];
+    const Eigen::Affine3d& p1 = transformed_poses[i - 1];
+    const Eigen::Affine3d& p2 = transformed_poses[i];
 
     // decide how many steps we will need for this trajectory
     const double distance = (p2.translation() - p1.translation()).norm();
@@ -534,8 +535,7 @@ bool CartPathPlanner::addEdgesToBoltGraph(const TrajectoryGraph& graph_vertices,
         // Convert OMPL state to std::vector
         const double* start_array =
             task_graph_->getState(v0)->as<moveit_ompl::ModelBasedStateSpace::StateType>()->values;
-        const double* end_array =
-            task_graph_->getState(v1)->as<moveit_ompl::ModelBasedStateSpace::StateType>()->values;
+        const double* end_array = task_graph_->getState(v1)->as<moveit_ompl::ModelBasedStateSpace::StateType>()->values;
 
         // Attempt to eliminate edge based on the ability to achieve joint motion is possible in the window provided
         if (!ur5_robot_model_->isValidMove(start_array, end_array, space->getDimension(), timing_))

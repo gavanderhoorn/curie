@@ -193,7 +193,7 @@ double moveit_ompl::StateValidityChecker::clearance(const ompl::base::State *sta
   return res.collision ? 0.0 : (res.distance < 0.0 ? std::numeric_limits<double>::infinity() : res.distance);
 }
 
-void moveit_ompl::StateValidityChecker::setCheckingEnabled(const bool& checking_enabled)
+void moveit_ompl::StateValidityChecker::setCheckingEnabled(const bool &checking_enabled)
 {
   checking_enabled_ = checking_enabled;
 

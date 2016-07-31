@@ -1,7 +1,6 @@
-  bool useDescartesToGetPoses(EigenSTL::vector_Affine3d exact_poses, bool debug);
-  bool generateCartGraph();
-  bool convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph);
-
+bool useDescartesToGetPoses(EigenSTL::vector_Affine3d exact_poses, bool debug);
+bool generateCartGraph();
+bool convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph);
 
 bool CartPathPlanner::useDescartesToGetPoses(EigenSTL::vector_Affine3d exact_poses, bool debug)
 {
@@ -136,7 +135,6 @@ bool CartPathPlanner::generateCartGraph()
 
   return true;
 }
-
 
 bool CartPathPlanner::convertDescartesGraphToBolt(ompl::tools::bolt::TaskGraphPtr task_graph)
 {
