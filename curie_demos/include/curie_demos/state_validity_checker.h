@@ -41,6 +41,7 @@
 #include <moveit/collision_detection/collision_common.h>
 #include <moveit/planning_scene/planning_scene.h>
 #include <ompl/base/StateValidityChecker.h>
+#include <ompl/tools/debug/Visualizer.h>
 #include <moveit_ompl/model_based_state_space.h>
 
 namespace moveit_ompl
@@ -84,6 +85,18 @@ public:
   /** \brief Setter for CheckingEnabled */
   void setCheckingEnabled(const bool &checking_enabled);
 
+  /** \brief Get class for managing various visualization features */
+  ompl::tools::VisualizerPtr getVisual()
+  {
+    return visual_;
+  }
+
+  /** \brief Set class for managing various visualization features */
+  void setVisual(ompl::tools::VisualizerPtr visual)
+  {
+    visual_ = visual;
+  }
+
 protected:
   std::string group_name_;
   TSStateStorage tss_;
@@ -104,6 +117,9 @@ protected:
 
   /** \brief Debugging mode that always says state is collision free */
   bool checking_enabled_ = true;
+
+  /** \brief Class for managing various visualization features */
+  ompl::tools::VisualizerPtr visual_;
 };
 }
 

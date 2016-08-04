@@ -162,6 +162,14 @@ bool moveit_ompl::StateValidityChecker::isValid(const ompl::base::State *state, 
   planning_scene_->checkCollision(verbose ? collision_request_with_distance_verbose_ : collision_request_with_distance_,
                                   res, *robot_state);
   dist = res.distance;
+
+  // Visualize
+  // if (res.collision)
+  //   visual_->viz2()->state(state, ompl::tools::SMALL, ompl::tools::RED, 0);
+  // else
+  //   visual_->viz2()->state(state, ompl::tools::SMALL, ompl::tools::GREEN, 0);
+  // visual_->viz2()->trigger();
+
   return res.collision == false;
 }
 

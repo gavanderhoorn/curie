@@ -74,6 +74,7 @@ sparse_criteria:
   near_sample_points_multiple: 2 # multiply this times number of dimensions
   stretch_factor: 5 # 0 means auto set
   use_l2_norm: false # instead use L1
+  use_edge_improvement_rule: true
   use_check_remove_close_vertices: true # Experimental feature that allows very closeby vertices to be merged with newly added ones
   use_clear_edges_near_vertex: true # When adding a quality vertex, remove nearby edges
   use_original_smoother: false # original is bad
