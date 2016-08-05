@@ -69,7 +69,7 @@ sparse_graph:
 sparse_criteria:
   #sparse_delta_fraction: 0.1 # for 6dof
   sparse_delta_fraction: 0.2 # for 12dof
-  dense_delta_fraction: 0.01
+  dense_delta_fraction: 0.01 #NOTE: this is not used anymore
   penetration_overlap_fraction: 0.1
   near_sample_points_multiple: 2 # multiply this times number of dimensions
   stretch_factor: 5 # 0 means auto set
@@ -90,6 +90,7 @@ sparse_criteria:
     quality_criteria: false
     quality_criteria_close_reps: false # window 3
     quality_criteria_sampler: false
+    quality_criteria_astar: false # show results of astar test
     remove_close_vertices: false
 
 # ====================================================
